@@ -1,7 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String
 
-from src.api.constants import (MAX_LENGTH_FIRST_NAME, 
+from api.constants import (MAX_LENGTH_FIRST_NAME, 
                                MAX_LENGTH_LAST_NAME, 
                                MAX_LENGTH_EMAIL
                                )
