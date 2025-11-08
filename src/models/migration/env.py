@@ -9,12 +9,12 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
-from models.usermodels import Base
-from models.database import database_url
-from models.usermodels import User
+from models.users import Base
+from src.database import database_url
+
 
 config = context.config
-config.set_main_option("sqlalchemy.url", database_url)
+config.set_main_option('sqlalchemy.url', database_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
