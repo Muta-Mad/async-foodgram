@@ -17,6 +17,13 @@ class UserRead(UserBase):
 
 
 class TagBase(BaseModel):
-    id: int
     name: str
     slug: str
+
+
+class TagRead(TagBase):
+    id: int
+
+
+class TagCreate(TagBase):
+    pass
