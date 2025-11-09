@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class UserBase(BaseModel):
     first_name: str
     last_name: str
@@ -9,6 +10,13 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     pass
 
+
 class UserRead(UserBase):
     id: int
     pass
+
+
+class TagBase(BaseModel):
+    id: int
+    name: str
+    slug: str
