@@ -8,12 +8,14 @@ from .database import get_db
 
 router = APIRouter(prefix='/users', tags=['Users'])
 
+
 async def get_all_users(session: AsyncSession):
     stmt = select(User).order_by(User.id)
     result = await session.scalars(stmt)
     return result.all()
 
-async def post_create_user(session: AsyncSession, user_create: UserCreate,) -> User:
+
+async def post_create_user(session: AsyncSession, user_create: UserCreate) -> User:
     user = User(**user_create.model_dump())
     session.add(user)
     await session.commit()
