@@ -5,7 +5,7 @@ from sqlalchemy import select
 from .database import get_db
 
 from .models import Tag
-from .schemas import TagRead, TagCreate
+from .schemas import TagRead
 
 router = APIRouter(prefix='/tags', tags=['Tags'])
 

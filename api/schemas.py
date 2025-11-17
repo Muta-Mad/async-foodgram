@@ -27,3 +27,9 @@ class TagRead(TagBase):
 
 class TagCreate(TagBase):
     pass
+
+
+class IngredientRead(BaseModel):
+    id: int
+    name: str
+    measurement_unit: str

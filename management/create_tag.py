@@ -1,9 +1,7 @@
-import sys
-import os
-from pathlib import Path
-
 import asyncio
+from pathlib import Path
 import json
+import sys
 
 from api.models import Tag
 from api.database import new_session

@@ -1,5 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String
+from sqlalchemy import Enum
+import enum
 
 
 class Base(DeclarativeBase):
@@ -15,6 +17,8 @@ class User(Base):
 
 
 class Tag(Base):
+    """ Модель Тега """
+
     __tablename__ = 'tags'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(128))
@@ -23,4 +27,24 @@ class Tag(Base):
         unique=True,
         comment="Поле для слэга",
         )
-    
+
+
+class MeasurementUnit(enum.Enum):
+    """ Класс, представляющий константы единицы измерения. """
+
+    GRAM = "г", "Грамм"
+    KILOGRAM = "кг", "Килограмм"
+    LITER = "л", "Литр"
+    MILLILITER = "мл", "Миллилитр"
+    PIECE = "шт", "Штука"
+
+
+class Ingredient(Base):
+    """ Модель Ингредиента """
+
+    __tablename__ = 'ingredients'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(128))
+    measurement_unit: Mapped[MeasurementUnit] = mapped_column(
+        Enum(MeasurementUnit, name='measurement_unit_enum'),
+    )
