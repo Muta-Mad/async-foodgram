@@ -14,15 +14,15 @@ sys.path.append(str(project_root))
 async def create_tag():
     """ Асинхронная функция для создания тегов """
 
-    json_file = current_dir / "data.json"
+    json_file = current_dir / 'data.json'
 
-    with open(json_file, "r", encoding="utf-8") as file:
+    with open(json_file, 'r', encoding='utf-8') as file:
         for line in file:
             data = json.loads(line.strip())
             async with new_session() as db:
                 tag = Tag(
-                    name=data["name"],
-                    slug=data["slug"],
+                    name=data['name'],
+                    slug=data['slug'],
                 )
                 db.add(tag)
                 await db.commit()

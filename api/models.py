@@ -25,18 +25,18 @@ class Tag(Base):
     slug: Mapped[str] = mapped_column(
         String(64),
         unique=True,
-        comment="Поле для слэга",
+        comment='Поле для слэга',
         )
 
 
 class MeasurementUnit(enum.Enum):
     """ Класс, представляющий константы единицы измерения. """
 
-    GRAM = "г", "Грамм"
-    KILOGRAM = "кг", "Килограмм"
-    LITER = "л", "Литр"
-    MILLILITER = "мл", "Миллилитр"
-    PIECE = "шт", "Штука"
+    GRAM = 'г', 'Грамм'
+    KILOGRAM = 'кг', 'Килограмм'
+    LITER = 'л', 'Литр'
+    MILLILITER = 'мл', 'Миллилитр'
+    PIECE = 'шт', 'Штука'
 
 
 class Ingredient(Base):
