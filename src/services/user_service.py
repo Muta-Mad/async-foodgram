@@ -1,25 +1,11 @@
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from models.user import User
-from schemas.user import UserCreate
-# from repositories.user_repository import UserRepository
+from services.base_service import BaseService
+from schemas.user import UserCreate, UserUpdate
+from repositories.user_repository import UserRepository
 
 
-class UserService:
-
-    async def get_all_users(self, session: AsyncSession) -> list[User]:
-        stmt = select(User).order_by(User.id)
-        result = await session.scalars(stmt)
-        return result.all()
-
-    async def create_user(
-            self,
-            session: AsyncSession,
-            user_create: UserCreate
-    ) -> User:
-        user = User(**user_create.model_dump())
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return user
+class UserService(BaseService[User, UserCreate, UserUpdate, UserRepository]):
+    
+    def __init__(self):
+        repository = UserRepository()
+        super().__init__(repository)

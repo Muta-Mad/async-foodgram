@@ -17,7 +17,5 @@ class UserRead(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-class UserList(BaseModel):
-    users: list[UserRead]
-
-    model_config = ConfigDict(from_attributes=True)
+class UserUpdate(BaseModel):
+    pass

@@ -4,34 +4,35 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_db
-from schemas.tag import TagRead
-from services.tag_service import TagService
+from schemas.ingredient import IngredientCreate, IngredientRead
+from services.ingredient_service import IngredientService
+
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix='/tags', tags=['Tags'])
+router = APIRouter(prefix='/ingredients', tags=['Ingredients'])
 
 
-def get_tag_service() -> TagService:
-    return TagService()
+def get_ingredient_service() -> IngredientService:
+    return IngredientService()
 
 
-@router.get('/', response_model=list[TagRead])
-async def get_tags(
+@router.get('/', response_model=list[IngredientRead])
+async def get_ingredients(
     session: AsyncSession = Depends(get_db),
-    tag_service: TagService = Depends(get_tag_service)
+    ingredient_service: IngredientService = Depends(get_ingredient_service)
 ):
     try:
-        tags = await tag_service.get_all(session=session)
-        return tags
+        ingredients = await ingredient_service.get_all(session=session)
+        return ingredients
     except HTTPException:
         raise
     except Exception as e:
         logger.error(
-            "Критическая ошибка в get_tags",
+            "Критическая ошибка в get_ingredients",
             exc_info=True,
             extra={
-                "endpoint": "GET /tags",
+                "endpoint": "GET /ingredients",
                 "error_type": type(e).__name__,
                 "error_message": str(e)
             }
@@ -42,23 +43,26 @@ async def get_tags(
         )
 
 
-@router.get('/{id}', response_model=TagRead)
-async def get_tag(
-    id: int,
+@router.post('/', response_model=IngredientRead)
+async def create_ingredient(
+    ingredient_data: IngredientCreate,
     session: AsyncSession = Depends(get_db),
-    tag_service: TagService = Depends(get_tag_service)
+    ingredient_service: IngredientService = Depends(get_ingredient_service)
 ):
     try:
-        tag = await tag_service.get(session, id)
-        return tag
+        user = await ingredient_service.create(
+            session=session,
+            obj_in=ingredient_data
+        )
+        return user
     except HTTPException:
         raise
     except Exception as e:
         logger.error(
-            "Критическая ошибка в get_tag",
+            "Критическая ошибка в create_ingredient",
             exc_info=True,
             extra={
-                "endpoint": "GET /tag",
+                "endpoint": "POST /ingredients",
                 "error_type": type(e).__name__,
                 "error_message": str(e)
             }

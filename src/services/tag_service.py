@@ -1,21 +1,11 @@
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from models.tag import Tag
-# from repositories.tag_repository import TagRepository
+from services.base_service import BaseService
+from schemas.tag import TagCreate, TagUpdate
+from repositories.tag_repository import TagRepository
 
 
-class TagService:
+class TagService(BaseService[Tag, TagCreate, TagUpdate, TagRepository]):
 
-    # def create_tag(self, db, user_data: TagCreate) -> Tag:
-    #     return self.user_repository.create(db, user_data)
-
-    async def get_all_tags(self, session: AsyncSession):
-        stmt = select(Tag).order_by(Tag.id)
-        result = await session.scalars(stmt)
-        return result.all()
-
-    async def get_tag(self, session: AsyncSession, id: int):
-        stmt = select(Tag).where(Tag.id == id)
-        result = await session.scalar(stmt)
-        return result
+    def __init__(self):
+        repository = TagRepository()
+        super().__init__(repository)

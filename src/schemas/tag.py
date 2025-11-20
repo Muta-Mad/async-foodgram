@@ -14,5 +14,5 @@ class TagCreate(TagBase):
     pass
 
 
-class TagList(BaseModel):
-    users: list[TagRead]
+class TagUpdate(TagBase):
+    pass
