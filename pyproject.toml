@@ -10,3 +10,14 @@ where = ["src"]
 max-line-length = 88
 ignore = ["E203", "W503", "F401"]
 extend-ignore = ["E402"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "asyncio: asyncio tests",
+    "unit: Unit tests",
+    "integration: Integration tests",
+]
+addopts = ["-v", "--tb=short"]
