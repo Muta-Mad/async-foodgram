@@ -1,9 +1,8 @@
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
+from api.basemodel import Base
 
-class Base(DeclarativeBase):
-    pass
 
 class Tag(Base):
     __tablename__ = 'tags'
@@ -12,6 +11,6 @@ class Tag(Base):
     slug: Mapped[str] = mapped_column(
         String(64),
         unique=True,
-        comment="Поле для слэга",
+        comment='Поле для слэга',
         )
     

@@ -1,9 +1,8 @@
-from fastapi import Depends
-from fastapi_users.db import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
+from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Text
 
-from api.models import Base
+from api.basemodel import Base
 
 class User(SQLAlchemyBaseUserTable[int], Base,):
     __tablename__ = "user"  

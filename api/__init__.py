@@ -1,8 +1,7 @@
-from .users import User
+__all__ = (
+    'User', 'Tag', 'Base'
+)
 
-from fastapi import APIRouter
-
-from .tags import router as tags_router
-
-router = APIRouter()
-router.include_router(tags_router)
+from api.tags.models import Tag
+from api.users.models import User
+from api.basemodel import Base

@@ -9,8 +9,8 @@ from alembic import context
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from api.models import Base
-from api.database import database_url
+from api.basemodel import Base
+from database import database_url
 
 config = context.config
 config.set_main_option("sqlalchemy.url", database_url.replace("+aiosqlite", ""))
