@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api.tags.tags import router as tags_router
+from .tags import router
 
-router = APIRouter()
-router.include_router(tags_router)
+tags_router = APIRouter()
+tags_router.include_router(router)
