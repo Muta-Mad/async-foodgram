@@ -13,8 +13,8 @@ from api.ingredients.models import Ingredient
 from database import new_session
 
 
-PATH_TO_TAGS_DATA = current_dir / "tags_data.json"
-PATH_TO_INGREDIENTS_DATA = current_dir / "ingredients_data.json"
+PATH_TO_TAGS_DATA = current_dir / 'tags_data.json'
+PATH_TO_INGREDIENTS_DATA = current_dir / 'ingredients_data.json'
 
 
 def get_data(path):
@@ -23,7 +23,7 @@ def get_data(path):
     Конвертирует json-массив в список словарей с данными.
     """
 
-    with open(path, "r", encoding="utf-8") as file:
+    with open(path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
 
@@ -38,14 +38,14 @@ async def create_objects(model, data):
         objects_exists = result.scalar_one_or_none()
 
         if objects_exists:
-            return print(f"Объекты {model.__name__} уже существуют в базе!")
+            return print(f'Объекты {model.__name__} уже существуют в базе!')
 
         await db.execute(
             insert(model),
             data,
         )
         await db.commit()
-        print(f"Успешно создано {len(data)} объектов {model.__name__}!")
+        print(f'Успешно создано {len(data)} объектов {model.__name__}!')
 
 
 async def main():

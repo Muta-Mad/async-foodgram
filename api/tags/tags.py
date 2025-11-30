@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -19,6 +19,11 @@ async def get_all_tags(session: AsyncSession):
 async def get_tag_object(session: AsyncSession, id: int):
     stmt = select(Tag).where(Tag.id == id)
     result = await session.scalar(stmt)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Тега с таким ID не существует.'
+        )
     return result
 
 @router.get('/', response_model=list[TagRead])

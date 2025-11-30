@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from database import get_db
-from .models import Ingredient
-from .schemas import IngredientRead
+from api.ingredients.models import Ingredient
+from api.ingredients.schemas import IngredientRead
 
 router = APIRouter(prefix="/ingredients", tags=["Ingredients"])
 
@@ -20,6 +20,11 @@ async def get_ingredient_object(session: AsyncSession, id: int):
     """Логика, возвращающая объект ингредиента по id"""
     stmt = select(Ingredient).where(Ingredient.id == id)
     result = await session.scalar(stmt)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Ингредиента с таким ID не существует.'
+        )
     return result
 
 

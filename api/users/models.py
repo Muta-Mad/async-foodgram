@@ -6,7 +6,7 @@ from api.basemodel import Base
 
 
 class User(SQLAlchemyBaseUserTable[int], Base):
-    __tablename__ = "users"
+    __tablename__ = 'users'
 
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(String)

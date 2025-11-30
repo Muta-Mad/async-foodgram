@@ -1,17 +1,15 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
-from api.basemodel import Base
+from api.basemodel import Base, SQLAlchemyBaseMixin
 
 
-class Tag(Base):
+class Tag(Base, SQLAlchemyBaseMixin):
     """Модель Тега"""
 
-    __tablename__ = "tags"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(128))
+    __tablename__ = 'tags'
     slug: Mapped[str] = mapped_column(
         String(64),
         unique=True,
-        comment="Поле для слэга",
+        comment='Поле для слэга',
     )
