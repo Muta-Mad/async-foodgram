@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
-from api.basemodel import Base, SQLAlchemyBaseMixin
+from api.basemodel import Base
+from api.mixins import SQLAlchemyBaseMixin
 
 
 class Tag(Base, SQLAlchemyBaseMixin):
