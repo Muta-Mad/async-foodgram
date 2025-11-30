@@ -9,11 +9,13 @@ DB_PATH = BASE_DIR / 'db.sqlite3'
 
 
 class Db_Config(BaseModel):
+    """Настройки базы данных"""
     url: str = f'sqlite+aiosqlite:///{DB_PATH}'
 
 
 
 class Settings(BaseSettings):
+    """Базовые настройки"""
     db: Db_Config = Db_Config()
     api_prefix: str = '/api'
 

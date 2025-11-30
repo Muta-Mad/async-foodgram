@@ -13,6 +13,7 @@ new_session = async_sessionmaker(
 
 
 async def get_db():
+    """асинхронная функция для получении сессии"""
     async with new_session() as session:
         try:
             yield session
