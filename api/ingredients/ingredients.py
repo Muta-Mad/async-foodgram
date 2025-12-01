@@ -17,7 +17,7 @@ async def get_all_ingredients(session: AsyncSession) -> list[Ingredient]:
     """Логика, возвращающая список ингредиентов"""
     stmt = select(Ingredient).order_by(Ingredient.id)
     result = await session.scalars(stmt)
-    return result.all()
+    return list(result.all())
 
 
 async def get_ingredient_object(

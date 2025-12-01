@@ -16,7 +16,7 @@ async def get_all_tags(session: AsyncSession) -> list[Tag]:
     """Логика, возвращающая список тегов"""
     stmt = select(Tag).order_by(Tag.id)
     result = await session.scalars(stmt)
-    return result.all()
+    return list(result.all())
 
 
 async def get_tag_object(session: AsyncSession, id: int) -> Optional[Tag]:
