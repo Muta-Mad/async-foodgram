@@ -1,15 +1,17 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    async_sessionmaker,
+    AsyncSession,
+)
 
-from settings import settings
 
-database_url = settings.db.url
+database_url = 'sqlite+aiosqlite:///db.sqlite3'
 
 engine = create_async_engine(database_url)
 
 new_session = async_sessionmaker(
-    bind=engine, expire_on_commit=False, 
-    autoflush=False, class_= AsyncSession,
-    )
+    bind=engine, expire_on_commit=False, autoflush=False, class_=AsyncSession
+)
 
 
 async def get_db():

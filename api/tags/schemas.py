@@ -1,14 +1,7 @@
 from pydantic import BaseModel
 
 
-class TagBase(BaseModel):
+class TagRead(BaseModel):
+    id: int
     name: str
     slug: str
-
-
-class TagRead(TagBase):
-    id: int
-
-
-class TagCreate(TagBase):
-    pass
