@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -23,7 +21,7 @@ async def get_all_ingredients(session: AsyncSession) -> list[Ingredient]:
 async def get_ingredient_object(
     session: AsyncSession,
     id: int,
-) -> Optional[Ingredient]:
+) -> Ingredient|None:
     """Логика, возвращающая объект ингредиента по id"""
     stmt = select(Ingredient).where(Ingredient.id == id)
     result = await session.scalar(stmt)
@@ -45,7 +43,7 @@ async def get_ingredients(
 async def get_ingredient(
     id: int,
     session: AsyncSession = Depends(get_db),
-) -> Optional[Ingredient]:
+) -> Ingredient|None:
     """get - запрос для получения объекта ингредиента по id"""
     ingredient = await get_ingredient_object(session, id)
     return ingredient

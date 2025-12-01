@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -19,7 +17,7 @@ async def get_all_tags(session: AsyncSession) -> list[Tag]:
     return list(result.all())
 
 
-async def get_tag_object(session: AsyncSession, id: int) -> Optional[Tag]:
+async def get_tag_object(session: AsyncSession, id: int) -> Tag|None:
     """Логика, возвращающая объект тега по id"""
     stmt = select(Tag).where(Tag.id == id)
     result = await session.scalar(stmt)
@@ -41,7 +39,7 @@ async def get_tags(session: AsyncSession = Depends(get_db)) -> list[Tag]:
 async def get_tag(
     id: int,
     session: AsyncSession = Depends(get_db),
-) -> Optional[Tag]:
+) -> Tag|None:
     """get - запрос для получения объекта тега по id"""
     tag = await get_tag_object(session, id)
     return tag
