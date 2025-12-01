@@ -4,8 +4,10 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession,
 )
 
+from settings import settings
 
-database_url = 'sqlite+aiosqlite:///db.sqlite3'
+
+database_url = settings.db.url
 
 engine = create_async_engine(database_url)
 

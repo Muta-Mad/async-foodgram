@@ -1,4 +1,4 @@
-from typing import Sequence, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +13,7 @@ from api.exceptions import not_found_error
 router = APIRouter(prefix='/ingredients', tags=['Ingredients'])
 
 
-async def get_all_ingredients(session: AsyncSession) -> Sequence[Ingredient]:
+async def get_all_ingredients(session: AsyncSession) -> list[Ingredient]:
     """Логика, возвращающая список ингредиентов"""
     stmt = select(Ingredient).order_by(Ingredient.id)
     result = await session.scalars(stmt)
@@ -28,14 +28,14 @@ async def get_ingredient_object(
     stmt = select(Ingredient).where(Ingredient.id == id)
     result = await session.scalar(stmt)
     if not result:
-        not_found_error('Ингредиента')
+        not_found_error('Ингредиент')
     return result
 
 
 @router.get('/', response_model=list[IngredientRead])
 async def get_ingredients(
     session: AsyncSession = Depends(get_db),
-) -> Sequence[Ingredient]:
+) -> list[Ingredient]:
     """get - запрос для получения списка ингредиентов"""
     ingredient = await get_all_ingredients(session)
     return ingredient
