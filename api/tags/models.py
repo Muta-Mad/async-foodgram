@@ -2,9 +2,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
 from api.basemodel import Base
+from api.idMixin import IdPkMixin
 
 
-class Tag(Base):
+class Tag(IdPkMixin, Base):
     """Модель Тега"""
 
     __tablename__ = 'tags'

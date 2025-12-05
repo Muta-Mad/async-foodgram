@@ -2,9 +2,9 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
 from api.basemodel import Base
+from api.idMixin import IdPkMixin
 
-
-class Ingredient(Base):
+class Ingredient(IdPkMixin, Base):
     """Модель Ингредиента"""
 
     __tablename__ = 'ingredients'

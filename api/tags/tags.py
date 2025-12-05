@@ -22,9 +22,8 @@ async def get_tag_object(session: AsyncSession, id: int) -> Tag|None:
     stmt = select(Tag).where(Tag.id == id)
     result = await session.scalar(stmt)
     if not result:
-        not_found_error('Тег')
+        not_found_error("Тег")
     return result
-
 
 
 @router.get('/', response_model=list[TagRead])
@@ -34,12 +33,11 @@ async def get_tags(session: AsyncSession = Depends(get_db)) -> list[Tag]:
     return tags
 
 
-
 @router.get('/{id}', response_model=TagRead)
 async def get_tag(
     id: int,
     session: AsyncSession = Depends(get_db),
-) -> Tag|None:
+) -> Tag | None:
     """get - запрос для получения объекта тега по id"""
     tag = await get_tag_object(session, id)
     return tag

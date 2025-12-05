@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from pydantic import BaseModel
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent
 
@@ -13,11 +13,22 @@ class Db_Config(BaseModel):
     url: str = f'sqlite+aiosqlite:///{DB_PATH}'
 
 
+class Access_Token(BaseModel):
+    """Настройки токена"""
+    lifetime_seconds: int = 3600
+    verification_token_secret: str 
+    reset_password_token_secret: str  
 
 class Settings(BaseSettings):
     """Базовые настройки"""
     db: Db_Config = Db_Config()
-    api_prefix: str = '/api'
+    access_token: Access_Token
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        case_sensitive=False,
+        env_nested_delimiter='__',
+    )
 
 
 settings = Settings()
