@@ -1,17 +1,25 @@
-from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
+from fastapi_users_db_sqlalchemy import (
+    SQLAlchemyBaseUserTable, 
+    SQLAlchemyUserDatabase
+)
+from fastapi_users_db_sqlalchemy.access_token import (
+    SQLAlchemyBaseAccessTokenTable,
+    SQLAlchemyAccessTokenDatabase
+)
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Text, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi_users_db_sqlalchemy.access_token import (
-    SQLAlchemyAccessTokenDatabase, 
-    SQLAlchemyBaseAccessTokenTable,
-)
 
 from api.basemodel import Base
+from api.idMixin import IdPkMixin
 
-class User(SQLAlchemyBaseUserTable[int], Base,):
+class User(
+    Base,
+    IdPkMixin,
+    SQLAlchemyBaseUserTable[int],
+):
     """Модель пользователя"""
-    __tablename__ = 'users'  
+    __tablename__ = 'users'
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String)
     avatar: Mapped[str] = mapped_column(Text)
@@ -21,14 +29,15 @@ class User(SQLAlchemyBaseUserTable[int], Base,):
         """Возвращает объект работы с пользователями через FastAPI-Users."""
         return SQLAlchemyUserDatabase(session, cls)
 
-
-class AccessToken(Base, SQLAlchemyBaseAccessTokenTable[int]):
+class AccessToken(
+    Base, 
+    SQLAlchemyBaseAccessTokenTable[int]
+):
     """модель токена доступа пользователя."""
-    __tablename__ = 'access_tokens'  
+
+    __tablename__ = 'access_tokens'
     user_id: Mapped[int] = mapped_column(
-        Integer, 
-        ForeignKey('users.id', ondelete='cascade'), 
-        nullable=False
+        Integer, ForeignKey('users.id', ondelete='cascade'), nullable=False
     )
 
     @classmethod
