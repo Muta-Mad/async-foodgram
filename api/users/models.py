@@ -35,7 +35,7 @@ class AccessToken(
 ):
     """модель токена доступа пользователя."""
 
-    __tablename__ = 'access_tokens'
+    __tablename__ = 'auth_token'
     user_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('users.id', ondelete='cascade'), nullable=False
     )
