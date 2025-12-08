@@ -7,7 +7,7 @@ class UserBase(BaseModel):
     username: str 
     first_name: str 
     last_name: str 
-    avatar: Optional[str] = None
+    avatar: str | None = None 
 
 class UserResponse(BaseModel):
     id: int
@@ -18,9 +18,9 @@ class UserResponse(BaseModel):
 
 
 class UserBaseUpdate(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    avatar: Optional[str] = None
+    first_name: str | None = None 
+    last_name: str | None = None 
+    avatar: str | None = None 
 
 
 class UserCreate(schemas.BaseUserCreate, UserBase):
