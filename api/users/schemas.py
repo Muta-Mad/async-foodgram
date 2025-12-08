@@ -9,16 +9,15 @@ class UserBase(BaseModel):
     last_name: str 
     avatar: str | None = None 
 
-class UserResponse(BaseModel):
+
+class UserResponse(UserBase):
     id: int
-    email: EmailStr
-    username: str
-    first_name: str
-    last_name: str
-    
+    is_subscribed: bool = False
 
 
-class UserBaseUpdate(BaseModel):
+class UserBaseUpdate(UserBase):
+    email: EmailStr | None = None 
+    username: str | None = None 
     first_name: str | None = None 
     last_name: str | None = None 
     avatar: str | None = None 
