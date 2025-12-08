@@ -8,13 +8,19 @@ class UserBase(BaseModel):
     avatar: str | None = None
 
 
-class UserRead(UserBase, schemas.BaseUser[int]):
+class UserBaseUpdate(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    avatar: str | None = None
+
+
+class UserCreate(schemas.BaseUserCreate, UserBase):
     pass
 
 
-class UserCreate(UserBase, schemas.BaseUserCreate):
+class UserRead(schemas.BaseUser[int], UserBase):
     pass
 
 
-class UserUpdate(UserBase, schemas.BaseUserUpdate):
+class UserUpdate(schemas.BaseUserUpdate, UserBaseUpdate):
     pass

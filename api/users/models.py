@@ -20,8 +20,8 @@ class User(
 ):
     """Модель пользователя"""
     __tablename__ = 'users'
-    first_name: Mapped[str] = mapped_column(String)
-    last_name: Mapped[str] = mapped_column(String)
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
     avatar: Mapped[str | None] 
 
     @classmethod
