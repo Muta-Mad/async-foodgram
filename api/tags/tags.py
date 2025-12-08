@@ -22,7 +22,7 @@ async def get_tag_object(session: AsyncSession, id: int) -> Tag|None:
     stmt = select(Tag).where(Tag.id == id)
     result = await session.scalar(stmt)
     if not result:
-        not_found_error("Тег")
+        not_found_error('Тег')
     return result
 
 

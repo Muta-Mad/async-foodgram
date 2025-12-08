@@ -2,13 +2,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 
 from api.users.models import User, AccessToken
-from database import get_db 
+from database import get_db
 
-async def get_user_db(session: AsyncSession = Depends(get_db)):
-    yield User.get_db(session=session)
+def create_db_dependency(model_class):
+    async def dependency(session: AsyncSession = Depends(get_db)):
+        yield model_class.get_db(session=session)
+    return dependency
 
 
-async def get_access_token_db(
-    session: AsyncSession = Depends(get_db),
-):  
-    yield AccessToken.get_db(session=session)
+get_user_db = create_db_dependency(User)
+get_access_token_db = create_db_dependency(AccessToken)

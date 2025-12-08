@@ -22,7 +22,7 @@ class User(
     __tablename__ = 'users'
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String)
-    avatar: Mapped[str] = mapped_column(Text)
+    avatar: Mapped[str | None] 
 
     @classmethod
     def get_db(cls, session: AsyncSession):

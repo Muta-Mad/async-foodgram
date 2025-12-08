@@ -19,7 +19,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def on_after_register(
             self, 
             user: User, 
-            request: Optional[Request] = None
+            request: Request | None = None
     ):
         log.warning('Пользователь %r зарегистрирован.', user.id)
 

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 class UserBase(BaseModel):
     first_name: str
     last_name: str
-    avatar: str
+    avatar: str | None = None
 
 
 class UserRead(UserBase, schemas.BaseUser[int]):
