@@ -16,8 +16,3 @@ router.include_router(
     fastapi_users.get_auth_router(
         authentication_backend), prefix='/token'
 )
-
-# /register
-router.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-)
