@@ -7,7 +7,7 @@ from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyAccessTokenDatabase
 )
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Text, Integer, ForeignKey
+from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.basemodel import Base
@@ -22,7 +22,9 @@ class User(
     __tablename__ = 'users'
     first_name: Mapped[str] = mapped_column(String, nullable=False)
     last_name: Mapped[str] = mapped_column(String, nullable=False)
-    avatar: Mapped[str | None] 
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    avatar: Mapped[str | None]
+
 
     @classmethod
     def get_db(cls, session: AsyncSession):
