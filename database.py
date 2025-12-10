@@ -20,6 +20,8 @@ async def get_db():
     """асинхронная функция для получении сессии"""
     async with new_session() as session:
         try:
+            print(f'Открыли сессию {session}')
             yield session
         finally:
+            print(f'Закрыли сессию {session}')
             await session.close()
