@@ -1,3 +1,5 @@
+from typing import Type
+
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -8,7 +10,7 @@ from api.basemodel import Base
 class BaseRepository:
     """Базовый репозиторий с CRUD операциями."""
 
-    def __init__(self, model: Base, session: AsyncSession):
+    def __init__(self, model: Type[Base], session: AsyncSession):
         self.model = model
         self.session = session
 
@@ -34,7 +36,7 @@ class BaseRepository:
 
     async def update(self, id: int, obj_in: BaseModel) -> Base | None:
         """Обновить объект."""
-        update_data = obj_in.obj_in.model_dump(exclude_unset=True)
+        update_data = obj_in.model_dump(exclude_unset=True)
 
         stmt = (
             update(self.model)
