@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
+from api.exceptions import not_found_error
 from api.tags.models import Tag
 from api.tags.schemas import TagRead
-from api.exceptions import not_found_error
+from database import get_db
 
 router = APIRouter(prefix='/tags', tags=['Tags'])
 

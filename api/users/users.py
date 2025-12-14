@@ -4,12 +4,11 @@ from fastapi_users.exceptions import UserAlreadyExists
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.exceptions import not_found_error
 from api.users.fastapiusers import fastapi_users
 from api.users.models import User
 from api.users.schemas import UserCreate, UserRead
 from database import get_db
-from api.exceptions import not_found_error
-
 
 router = APIRouter(prefix='/users', tags=['Users'])
 

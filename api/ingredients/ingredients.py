@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-
-from database import get_db
+from api.exceptions import not_found_error
 from api.ingredients.models import Ingredient
 from api.ingredients.schemas import IngredientRead
-from api.exceptions import not_found_error
+from database import get_db
 
 router = APIRouter(prefix='/ingredients', tags=['Ingredients'])
 

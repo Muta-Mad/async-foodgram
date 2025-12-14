@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from api.tags.tags import router as tag_router
 from api.ingredients.ingredients import router as ingredient_router
+from api.tags.tags import router as tag_router
 from api.users.routers import router as auth_router
 from api.users.users import router as users_router
 

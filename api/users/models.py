@@ -1,17 +1,13 @@
-from fastapi_users_db_sqlalchemy import (
-    SQLAlchemyBaseUserTable, 
-    SQLAlchemyUserDatabase
-)
-from fastapi_users_db_sqlalchemy.access_token import (
-    SQLAlchemyBaseAccessTokenTable,
-    SQLAlchemyAccessTokenDatabase
-)
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Integer, ForeignKey
+from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
+from fastapi_users_db_sqlalchemy.access_token import (SQLAlchemyAccessTokenDatabase,
+                                                      SQLAlchemyBaseAccessTokenTable)
+from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column
 
 from api.basemodel import Base
 from api.idmixin import IdPkMixin
+
 
 class User(
     Base,

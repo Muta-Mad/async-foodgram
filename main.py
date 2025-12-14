@@ -3,8 +3,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 
-from api.routers import router as api_router
 from api.exceptions import validation_exception_handler
+from api.routers import router as api_router
 
 app = FastAPI()
 

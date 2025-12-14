@@ -1,9 +1,7 @@
 from fastapi import APIRouter
 
-from api.users.fastapiusers import fastapi_users
 from api.users.auth.backend import authentication_backend
-
-
+from api.users.fastapiusers import fastapi_users
 
 router = APIRouter(
     prefix='/auth',

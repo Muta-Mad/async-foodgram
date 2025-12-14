@@ -1,8 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.users.models import User, AccessToken
+from api.users.models import AccessToken, User
 from database import get_db
+
 
 def create_db_dependency(model_class):
     async def dependency(session: AsyncSession = Depends(get_db)):
