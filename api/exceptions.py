@@ -26,6 +26,24 @@ async def validation_exception_handler(
         content=errors,
     )
 
+async def http_exception_handler(
+    request: Request,
+    exc: Exception,
+):
+    exc = cast(HTTPException, exc)
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content={
+                'detail': 'Учетные данные не были предоставлены.'
+            },
+        )
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail': exc.detail},
+    )
+
 def not_found_error(eror: str):
     """Вызывает 404 если объект не найден."""
     raise HTTPException(
