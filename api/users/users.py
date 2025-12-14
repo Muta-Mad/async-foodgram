@@ -37,7 +37,7 @@ async def users(
 
 @router.get('/me', response_model=UserRead)
 async def me(
-    user=Depends(fastapi_users.current_user())
+    user=Depends(fastapi_users.current_user(active=True))
 ):
     return user
 

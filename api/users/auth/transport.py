@@ -6,4 +6,4 @@ class Bearer(BearerTransport):
         return {'auth_token': token}
     
 
-bearer_transport = Bearer(tokenUrl='auth/token/login')
+bearer_transport = Bearer(tokenUrl='/api/auth/token/login')
