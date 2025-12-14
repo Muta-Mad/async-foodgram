@@ -1,10 +1,17 @@
 import uvicorn
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 
 from api.routers import router as api_router
+from api.exceptions import validation_exception_handler
 
 app = FastAPI()
+
+app.add_exception_handler(
+    RequestValidationError,
+    validation_exception_handler
+)
 app.include_router(api_router, prefix='/api')
 
 if __name__ == '__main__':

@@ -6,18 +6,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.users.fastapiusers import fastapi_users
 from api.users.models import User
-from api.users.schemas import UserRead, UserUpdate, UserCreate, UserResponse
+from api.users.schemas import UserCreate, UserRead
 from database import get_db
+from api.exceptions import not_found_error
 
 
 router = APIRouter(prefix='/users', tags=['Users'])
 
-# /users
-router.include_router(
-    fastapi_users.get_users_router(UserRead, UserUpdate),
-)
 
-@router.post('/', response_model=UserResponse, status_code=201)
+@router.post('/', response_model=UserRead, status_code=201)
 async def create_user(
     user_create: UserCreate,
     user_manager=Depends(fastapi_users.get_user_manager)
@@ -31,10 +28,30 @@ async def create_user(
             detail='Пользователь уже существует'
         )
     
-@router.get('/', response_model=list[UserResponse])
-async def get_all_users(
+@router.get('/', response_model=list[UserRead])
+async def users(
     session: AsyncSession = Depends(get_db)
 ):
     result = await session.execute(select(User))
     users = result.scalars().all()
     return users 
+
+@router.get('/me', response_model=UserRead)
+async def me(
+    user=Depends(fastapi_users.current_user())
+):
+    return user
+
+
+@router.get('/{id}', response_model=UserRead)
+async def user(
+    id: int,
+    session: AsyncSession = Depends(get_db)
+):
+    result = await session.execute(
+        select(User).where(User.id == id)
+    )
+    user = result.scalar_one_or_none()
+    if not user:
+        not_found_error('Страница не найдена.')
+    return user

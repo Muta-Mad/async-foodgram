@@ -11,7 +11,7 @@ from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.basemodel import Base
-from api.idMixin import IdPkMixin
+from api.idmixin import IdPkMixin
 
 class User(
     Base,

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String
 
 from api.basemodel import Base
-from api.idMixin import IdPkMixin
+from api.idmixin import IdPkMixin
 
 class Ingredient(IdPkMixin, Base):
     """Модель Ингредиента"""
