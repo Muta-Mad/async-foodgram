@@ -16,9 +16,9 @@ class User(
 ):
     """Модель пользователя"""
     __tablename__ = 'users'
-    first_name: Mapped[str] = mapped_column(String, nullable=False)
-    last_name: Mapped[str] = mapped_column(String, nullable=False)
-    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    first_name: Mapped[str] = mapped_column(String(length=150), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(length=150), nullable=False)
+    username: Mapped[str] = mapped_column(String(length=150), unique=True, nullable=False)
     avatar: Mapped[str | None]
 
 
