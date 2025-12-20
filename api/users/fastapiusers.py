@@ -1,4 +1,3 @@
-
 from fastapi_users import FastAPIUsers
 
 from api.users.auth.backend import authentication_backend
@@ -7,5 +6,8 @@ from api.users.models import User
 
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
-    [authentication_backend],
+    [authentication_backend], 
 )
+
+
+current_active_user = fastapi_users.current_user(active=True)

@@ -2,7 +2,6 @@ from typing import Annotated
 
 from pydantic import StringConstraints
 
-
 USERNAME = Annotated[
     str,
     StringConstraints(

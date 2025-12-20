@@ -13,16 +13,22 @@ class Db_Config(BaseModel):
     url: str = f'sqlite+aiosqlite:///{DB_PATH}'
 
 
+class Paginate_Config(BaseModel):
+    page_size: int = 6
+
+
 class Access_Token(BaseModel):
     """Настройки токена"""
     lifetime_seconds: int = 3600
-    verification_token_secret: str 
-    reset_password_token_secret: str  
+    verification_token_secret: str
+    reset_password_token_secret: str
 
 class Settings(BaseSettings):
     """Базовые настройки"""
     db: Db_Config = Db_Config()
     access_token: Access_Token
+    pagination: Paginate_Config = Paginate_Config()
+
     model_config = SettingsConfigDict(
         env_file='.env',
         env_file_encoding='utf-8',
@@ -30,5 +36,4 @@ class Settings(BaseSettings):
         env_nested_delimiter='__',
     )
 
-
-settings = Settings()
+settings = Settings()# type: ignore

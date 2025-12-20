@@ -1,11 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from fastapi import HTTPException
 
-from api.exceptions import (
-    validation_exception_handler,
-    http_exception_handler,
-)
+from api.exceptions import http_exception_handler, validation_exception_handler
 
 
 def api_exception_handlers(app: FastAPI) -> None:
