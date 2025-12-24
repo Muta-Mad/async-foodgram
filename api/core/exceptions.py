@@ -44,9 +44,27 @@ async def http_exception_handler(
         content={'detail': exc.detail},
     )
 
-def not_found_error(eror: str):
-    """Вызывает 404 если объект не найден."""
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=eror,
-    )
+class Exception:
+    @staticmethod
+    def bad_request(detail: str):
+        """Возвращает 400"""
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=detail,
+        )
+
+    @staticmethod
+    def unauthorized(detail: str = 'Учетные данные не были предоставлены.'):
+        """Возвращает 401"""
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=detail,
+        )
+
+    @staticmethod
+    def not_found(detail: str):
+        """Возвращает 404"""
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail,
+        )

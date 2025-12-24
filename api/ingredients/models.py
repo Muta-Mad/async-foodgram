@@ -1,8 +1,8 @@
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from api.basemodel import Base
-from api.idmixin import IdPkMixin
+from api.core.basemodel import Base
+from api.core.idmixin import IdPkMixin
 
 
 class Ingredient(IdPkMixin, Base):

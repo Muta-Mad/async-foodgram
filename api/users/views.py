@@ -4,14 +4,16 @@ from fastapi_users.exceptions import UserAlreadyExists
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.base_paginator import Paginator
-from api.exceptions import not_found_error
-from api.paginate_schemas import Page
-from api.users.dependencies import get_current_user
-from api.users.manager import UserManager, get_user_manager
+from api.core.base_paginator import Paginator
+from api.core.baserepository import BaseRepository
+from api.core.database import get_db
+from api.core.exceptions import Exception
+from api.core.paginate_schemas import Page
+from api.dependencies import get_current_user, get_repository, get_user_manager
+from api.users.manager import UserManager
 from api.users.models import User
-from api.users.schemas import UserCreate, UserRead, UserResponce
-from database import get_db
+from api.users.schemas import (Avatar, SetPassword, UserCreate, UserRead,
+                               UserResponce)
 
 router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -25,18 +27,13 @@ async def create_user(
     result = await session.execute(select(User).where(User.username == user_create.username))
     existing_user = result.scalar_one_or_none()
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Пользователь с таким username уже существует'
-        )
+        Exception.bad_request('Пользователь с таким username уже существует')
     try:
         user = await user_manager.create(user_create, safe=True)
         return user
     except UserAlreadyExists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Пользователь уже существует'
-        )
+        Exception.bad_request('Пользователь уже существует')
+
     
 @router.get('/', response_model=Page[UserRead])
 async def get_users(
@@ -45,11 +42,11 @@ async def get_users(
 ):
     return await paginator.get_paginate(session, User)
 
-@router.get('/me', response_model=UserRead)
-async def me(user: User = Depends(get_current_user)):
+@router.get('/me/', response_model=UserRead)
+async def me(user: User = Depends(get_current_user)) -> User:
     return user
 
-@router.get('/{id}', response_model=UserRead)
+@router.get('/{id}/', response_model=UserRead)
 async def user(
     id: int,
     session: AsyncSession = Depends(get_db)
@@ -59,5 +56,37 @@ async def user(
     )
     user = result.scalar_one_or_none()
     if not user:
-        not_found_error('Страница не найдена.')
+        Exception.not_found('Страница не найдена.')
     return user
+
+@router.put('/me/avatar/', response_model=Avatar)
+async def avatar(
+    data: Avatar,
+    current_user: User = Depends(get_current_user),
+    repository: BaseRepository = Depends(get_repository)
+    )-> Avatar:
+    await repository.update(current_user, avatar=data.avatar)
+    return data
+
+@router.delete('/me/avatar/', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_avatar(
+    current_user: User = Depends(get_current_user),
+    repository: BaseRepository = Depends(get_repository)
+    ):
+    await repository.update(current_user, avatar=None)
+    return None
+
+@router.post('/set_password/', status_code=status.HTTP_204_NO_CONTENT)
+async def set_password(
+    data: SetPassword,
+    user: User = Depends(get_current_user),
+    user_manager: UserManager = Depends(get_user_manager),
+):
+    verified, _ = user_manager.password_helper.verify_and_update(
+        data.current_password, 
+        user.hashed_password
+    )
+    if not verified:
+        Exception.bad_request('Неверный пароль')
+    await user_manager._update(user, {'password': data.new_password})
+    return None

@@ -2,7 +2,7 @@ from fastapi import Query, Request
 from sqlalchemy import Select, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from settings import settings
+from api.core.settings import settings
 
 
 class Paginator:

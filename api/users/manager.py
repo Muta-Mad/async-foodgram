@@ -3,9 +3,9 @@ import logging
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
 
+from api.core.settings import settings
 from api.users.auth.get_db import get_user_db
 from api.users.models import User
-from settings import settings
 
 log = logging.getLogger(__name__)
 

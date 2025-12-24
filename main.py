@@ -2,7 +2,7 @@ import uvicorn
 
 from fastapi import FastAPI
 
-from api.exception_handlers import api_exception_handlers
+from api.core.exception_handlers import api_exception_handlers
 from api.routers import router as api_router
 
 app = FastAPI()

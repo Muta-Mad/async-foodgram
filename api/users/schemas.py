@@ -27,3 +27,10 @@ class UserRead(UserBase):
 class EmailPassword(BaseModel):
     email: EmailStr
     password: str
+
+class Avatar(BaseModel):
+    avatar: str
+
+class SetPassword(BaseModel):
+    new_password: str = Field(min_length=8)
+    current_password: str

@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users.authentication.strategy import Strategy
 
+from api.dependencies import get_current_user, get_user_manager
 from api.users.auth.backend import authentication_backend
 from api.users.auth.transport import token_transport
-from api.users.dependencies import get_current_user
-from api.users.manager import UserManager, get_user_manager
+from api.users.manager import UserManager
 from api.users.models import User
 from api.users.schemas import EmailPassword
 
