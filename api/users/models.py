@@ -5,8 +5,8 @@ from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from api.basemodel import Base
-from api.idmixin import IdPkMixin
+from api.core.basemodel import Base
+from api.core.idmixin import IdPkMixin
 
 
 class User(
@@ -16,9 +16,9 @@ class User(
 ):
     """Модель пользователя"""
     __tablename__ = 'users'
-    first_name: Mapped[str] = mapped_column(String, nullable=False)
-    last_name: Mapped[str] = mapped_column(String, nullable=False)
-    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    first_name: Mapped[str] = mapped_column(String(length=150), nullable=False)
+    last_name: Mapped[str] = mapped_column(String(length=150), nullable=False)
+    username: Mapped[str] = mapped_column(String(length=150), unique=True, nullable=False)
     avatar: Mapped[str | None]
 
 

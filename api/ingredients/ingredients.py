@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.exceptions import not_found_error
+from api.core.database import get_db
+from api.core.exceptions import Exception
 from api.ingredients.models import Ingredient
 from api.ingredients.schemas import IngredientRead
-from database import get_db
 
 router = APIRouter(prefix='/ingredients', tags=['Ingredients'])
 
@@ -25,7 +25,7 @@ async def get_ingredient_object(
     stmt = select(Ingredient).where(Ingredient.id == id)
     result = await session.scalar(stmt)
     if not result:
-        not_found_error('Ингредиент')
+        Exception.not_found('Ингредиент')
     return result
 
 

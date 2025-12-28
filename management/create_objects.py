@@ -10,9 +10,9 @@ current_dir = Path(__file__).parent
 project_root = current_dir.parent
 sys.path.append(str(project_root))
 
+from api.core.database import new_session
 from api.ingredients.models import Ingredient
 from api.tags.models import Tag
-from database import new_session
 
 PATH_TO_TAGS_DATA = current_dir / 'tags_data.json'
 PATH_TO_INGREDIENTS_DATA = current_dir / 'ingredients_data.json'
