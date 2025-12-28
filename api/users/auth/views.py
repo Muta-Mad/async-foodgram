@@ -17,6 +17,7 @@ async def login(
     user_manager: UserManager = Depends(get_user_manager),
     strategy: Strategy = Depends(authentication_backend.get_strategy)
 )-> dict:
+    """Получить токен авторизации"""
     credentials = OAuth2PasswordRequestForm(
         username=request.email,
         password=request.password,
@@ -35,5 +36,6 @@ async def logout(
     token: str = Depends(token_transport),
     strategy: Strategy = Depends(authentication_backend.get_strategy)
 ):
+    """Удаление токена"""
     await strategy.destroy_token(token, user)
     return None 

@@ -11,16 +11,11 @@ log = logging.getLogger(__name__)
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
+    """Менеджер для работы с пользователем"""
     verification_token_secret = settings.access_token.verification_token_secret
     reset_password_token_secret = settings.access_token.reset_password_token_secret
 
-    async def on_after_register(
-            self, 
-            user: User, 
-            request: Request | None = None
-    ):
-        log.warning('Пользователь %r зарегистрирован.', user.id)
-
 
 async def get_user_manager(user_db=Depends(get_user_db)):
+    """Получить менеджер"""
     yield UserManager(user_db)

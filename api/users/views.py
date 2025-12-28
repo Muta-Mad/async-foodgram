@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from fastapi_users.exceptions import UserAlreadyExists
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +24,7 @@ async def create_user(
     user_manager: UserManager = Depends(get_user_manager),
     session: AsyncSession = Depends(get_db)
 )-> User | None:
+    """Регистрация пользователя"""
     result = await session.execute(select(User).where(User.username == user_create.username))
     existing_user = result.scalar_one_or_none()
     if existing_user:
@@ -40,10 +41,12 @@ async def get_users(
     session: AsyncSession = Depends(get_db),
     paginator: Paginator = Depends(Paginator) 
 ):
+    """Список пользователей"""
     return await paginator.get_paginate(session, User)
 
 @router.get('/me/', response_model=UserRead)
 async def me(user: User = Depends(get_current_user)) -> User:
+    """Текущий пользователь"""
     return user
 
 @router.get('/{id}/', response_model=UserRead)
@@ -51,6 +54,7 @@ async def user(
     id: int,
     session: AsyncSession = Depends(get_db)
 )-> User | None:
+    """Профиль пользователя"""
     result = await session.execute(
         select(User).where(User.id == id)
     )
@@ -65,6 +69,7 @@ async def avatar(
     current_user: User = Depends(get_current_user),
     repository: BaseRepository = Depends(get_repository)
     )-> Avatar:
+    """Добавление аватара"""
     await repository.update(current_user, avatar=data.avatar)
     return data
 
@@ -73,6 +78,7 @@ async def delete_avatar(
     current_user: User = Depends(get_current_user),
     repository: BaseRepository = Depends(get_repository)
     ):
+    """Удаление аватара"""
     await repository.update(current_user, avatar=None)
     return None
 
@@ -82,6 +88,7 @@ async def set_password(
     user: User = Depends(get_current_user),
     user_manager: UserManager = Depends(get_user_manager),
 ):
+    """Изменение пароля"""
     verified, _ = user_manager.password_helper.verify_and_update(
         data.current_password, 
         user.hashed_password
