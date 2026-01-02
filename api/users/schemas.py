@@ -17,7 +17,7 @@ class UserCreate(schemas.BaseUserCreate, UserBase):
     pass
 
 
-class UserResponce(UserBase):
+class UserResponse(UserBase):
     """Схема ответа для пользователя"""
     id: int
 
@@ -26,7 +26,8 @@ class UserRead(UserBase):
     """Схема ответа для списка пользователей"""
     id: int
     is_subscribed: bool = False
-    avatar: str | None = None 
+    avatar: str | None = None
+
 
 class EmailPassword(BaseModel):
     """Схема для получение токена"""
@@ -41,3 +42,6 @@ class SetPassword(BaseModel):
     """Схема для замены пароля"""
     new_password: str = Field(min_length=8)
     current_password: str
+
+class SubscribeSchemas(UserRead):
+    recipes_count: int = 0

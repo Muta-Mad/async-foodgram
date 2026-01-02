@@ -44,7 +44,7 @@ async def http_exception_handler(
         content={'detail': exc.detail},
     )
 
-class Exception:
+class GlobalError:
     @staticmethod
     def bad_request(detail: str):
         """Возвращает 400"""

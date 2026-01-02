@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_db
-from api.core.exceptions import Exception
+from api.core.exceptions import GlobalError
 from api.tags.models import Tag
 from api.tags.schemas import TagRead
 
@@ -22,7 +22,7 @@ async def get_tag_object(session: AsyncSession, id: int) -> Tag|None:
     stmt = select(Tag).where(Tag.id == id)
     result = await session.scalar(stmt)
     if not result:
-        Exception.not_found('Тег')
+        GlobalError.not_found('Тег')
     return result
 
 

@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.database import get_db
-from api.core.exceptions import Exception
+from api.core.exceptions import GlobalError
 from api.ingredients.models import Ingredient
 from api.ingredients.schemas import IngredientRead
 
@@ -25,7 +25,7 @@ async def get_ingredient_object(
     stmt = select(Ingredient).where(Ingredient.id == id)
     result = await session.scalar(stmt)
     if not result:
-        Exception.not_found('Ингредиент')
+        GlobalError.not_found('Ингредиент')
     return result
 
 

@@ -24,7 +24,7 @@ class Paginator:
     ) -> dict:
         if base_query is None:
             base_query = select(model)
-        count_query = select(func.count()).select_from(model)
+        count_query = select(func.count()).select_from(base_query.subquery())
         total_count: int = (await session.execute(count_query)).scalar() or 0
         offset = (self.page - 1) * self.limit
         results_query = base_query.offset(offset).limit(self.limit)
