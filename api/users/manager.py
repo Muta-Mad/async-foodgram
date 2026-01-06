@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import Depends, Request
+from fastapi import Depends
 from fastapi_users import BaseUserManager, IntegerIDMixin
 
 from api.core.settings import settings

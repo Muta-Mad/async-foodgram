@@ -1,14 +1,16 @@
 __all__ = (
+    'Base',
     'User', 
-    'Tag', 
-    'Base', 
-    'AccessToken',
-    'Ingredient',
+    'AccessToken', 
     'Follow',
+    'Ingredient',
+    'Recipe',
+    'Tag',
+    'RecipeIngredient',
+    'RecipeTag'
 )
 
 from api.core.basemodel import Base
-from api.ingredients.models import Ingredient
-from api.tags.models import Tag
+from api.recipes.models import Recipe, Tag, Ingredient, RecipeIngredient, RecipeTag
 from api.users.models import AccessToken, User, Follow
 
