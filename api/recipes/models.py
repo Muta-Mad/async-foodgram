@@ -8,16 +8,18 @@ from api.users.models import User
 class Recipe(IdPkMixin, Base):
     __tablename__ = 'recipes'
     author_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
-    author: Mapped['User'] = relationship(back_populates='recipes')
+    author: Mapped['User'] = relationship(back_populates='recipes', lazy='selectin')
     name: Mapped[str] = mapped_column(String(length=256))
     image: Mapped[str | None]
     ingredients: Mapped[list['Ingredient']] = relationship(
         secondary='recipe_ingredients', 
-        back_populates='recipes'
+        back_populates='recipes',
+        lazy='selectin'
     )
     tags: Mapped[list['Tag']] = relationship(
         secondary='recipe_tags', 
-        back_populates='recipes'
+        back_populates='recipes',
+        lazy='selectin'
     )
     text: Mapped[str] = mapped_column(Text)
     cooking_time: Mapped[int] = mapped_column(SmallInteger)

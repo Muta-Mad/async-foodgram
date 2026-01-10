@@ -4,7 +4,7 @@ from api.core.settings import settings
 
 database_url = settings.db.url
 
-engine = create_async_engine(database_url)
+engine = create_async_engine(database_url, echo=True)
 
 new_session = async_sessionmaker(
     bind=engine, expire_on_commit=False, autoflush=False, class_=AsyncSession

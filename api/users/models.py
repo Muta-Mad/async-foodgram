@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
 from fastapi_users_db_sqlalchemy.access_token import (SQLAlchemyAccessTokenDatabase,
                                                       SQLAlchemyBaseAccessTokenTable)
@@ -8,6 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from api.core.basemodel import Base
 from api.core.idmixin import IdPkMixin
 
+if TYPE_CHECKING:
+    from api.recipes.models import Recipe
 
 class User(
     Base,
@@ -32,6 +36,10 @@ class User(
         foreign_keys='Follow.author_id', 
         back_populates='author',
         cascade='all, delete-orphan'
+    )
+    recipes: Mapped[list['Recipe']] = relationship(
+        'Recipe',
+        back_populates='author',
     )
 
     @classmethod
