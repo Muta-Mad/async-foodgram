@@ -68,6 +68,17 @@ def get_recipes_query():
         .order_by(Recipe.id)
     )
 
+def get_recipe_query(id: int):
+    return (
+        select(Recipe)
+        .options(
+            selectinload(Recipe.author),
+            selectinload(Recipe.tags),
+            selectinload(Recipe.ingredients)
+        )
+        .order_by(Recipe.id).where(Recipe.id==id)
+    )
+
 def map_user_to_read(user: User) -> UserRead:
     return UserRead(
         id=user.id,

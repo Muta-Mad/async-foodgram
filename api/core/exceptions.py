@@ -1,4 +1,4 @@
-from typing import cast
+from typing import NoReturn, cast
 
 from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -62,7 +62,7 @@ class GlobalError:
         )
 
     @staticmethod
-    def not_found(detail: str):
+    def not_found(detail: str) -> NoReturn:
         """Возвращает 404"""
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
