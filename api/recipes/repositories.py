@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from api.recipes.models import Recipe, RecipeIngredient, Tag
-from api.recipes.schemas import IngredientInRecipe, RecipeRead, TagRead
+from api.recipes.schemas import IngredientInRecipe, RecipeCreate, RecipeRead, TagRead
 from api.users.models import User
 from api.users.schemas import UserRead
 

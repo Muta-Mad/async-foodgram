@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.base_paginator import Paginator
 from api.core.exceptions import GlobalError
 from api.core.paginate_schemas import Page
+from api.dependencies import get_current_user
 from api.recipes.models import Recipe
 from api.recipes.repositories import get_amount_map, get_recipes_query, map_recipe_to_read, get_recipe_query
 from api.recipes.schemas import RecipeRead
 from api.core.database import get_db
+from api.users.models import User
 
 
 router = APIRouter(prefix='/recipes', tags=['Recipes'])
@@ -53,4 +56,20 @@ async def get_recipe(
     recipe_id = [recipe.id]
     amount_map = await get_amount_map(session, recipe_id)
     recipes_out = map_recipe_to_read(recipe, amount_map)
-    return recipes_out
+    return recipes_out  
+
+
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_recipe(
+    id: int,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+): 
+    query = select(Recipe).where(Recipe.id == id).filter(Recipe.author_id == current_user.id)
+    result = await session.execute(query)
+    recipe = result.scalar_one_or_none()
+    if not recipe:
+        GlobalError.not_found('Страница не найдена.')
+    await session.delete(recipe)
+    await session.commit()
+    return None
