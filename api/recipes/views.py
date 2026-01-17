@@ -6,9 +6,9 @@ from api.core.base_paginator import Paginator
 from api.core.exceptions import GlobalError
 from api.core.paginate_schemas import Page
 from api.dependencies import get_current_user
-from api.recipes.models import Recipe
+from api.recipes.models import Recipe, RecipeIngredient, RecipeTag, Tag
 from api.recipes.repositories import get_amount_map, get_recipes_query, map_recipe_to_read, get_recipe_query
-from api.recipes.schemas import RecipeRead
+from api.recipes.schemas import RecipeCreate, RecipeRead
 from api.core.database import get_db
 from api.users.models import User
 
@@ -73,3 +73,44 @@ async def delete_recipe(
     await session.delete(recipe)
     await session.commit()
     return None
+
+
+@router.post('/', response_model=RecipeRead, status_code=status.HTTP_201_CREATED)
+async def recipe_create(
+    data: RecipeCreate,
+    session: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    ):
+    recipe = Recipe(author_id=current_user.id, name=data.name, image=data.image, text=data.text, cooking_time=data.cooking_time)
+    session.add(recipe)
+    await session.flush()
+    ingredient = [
+        RecipeIngredient(
+            recipe_id=recipe.id, 
+            ingredient_id=ingredient.id, 
+            amount=ingredient.amount
+            ) 
+            for ingredient in data.ingredients
+        ]
+    session.add_all(ingredient)
+    tags = [
+        RecipeTag(
+            recipe_id=recipe.id, 
+            tag_id=tag) 
+            for tag in data.tags
+        ]
+    session.add_all(tags)
+    await session.commit()
+    query = get_recipe_query(recipe.id)
+    result = await session.execute(query)
+    recipe = result.scalar_one_or_none()
+    if not recipe:
+        GlobalError.not_found('Страница не найдена.')
+    recipe_id = [recipe.id]
+    amount_map = await get_amount_map(session, recipe_id)
+    recipes_out = map_recipe_to_read(recipe, amount_map)
+    return recipes_out  
+
+
+   
+
