@@ -14,14 +14,27 @@ class Recipe(IdPkMixin, Base):
     ingredients: Mapped[list['Ingredient']] = relationship(
         secondary='recipe_ingredients', 
         back_populates='recipes',
+        viewonly=True
     )
     tags: Mapped[list['Tag']] = relationship(
         secondary='recipe_tags', 
         back_populates='recipes',
+        viewonly=True
     )
     text: Mapped[str] = mapped_column(Text)
     cooking_time: Mapped[int] = mapped_column(SmallInteger)
 
+    recipe_ingredients: Mapped[list['RecipeIngredient']] = relationship(
+        'RecipeIngredient',
+        cascade='all, delete-orphan',
+        back_populates='recipe'
+    )
+
+    recipe_tags: Mapped[list['RecipeTag']] = relationship(
+        'RecipeTag',
+        cascade='all, delete-orphan',
+        back_populates='recipe'
+    )
 class Tag(IdPkMixin, Base):
     __tablename__ = 'tags'
     name: Mapped[str] = mapped_column(String(32))
@@ -52,11 +65,19 @@ class RecipeIngredient(IdPkMixin, Base):
     recipe_id: Mapped[int] = mapped_column(ForeignKey('recipes.id', ondelete='CASCADE'))
     ingredient_id: Mapped[int] = mapped_column(ForeignKey('ingredients.id', ondelete='CASCADE'))
     amount: Mapped[int] = mapped_column(SmallInteger)
+    ingredient: Mapped['Ingredient'] = relationship()
+    recipe: Mapped['Recipe'] = relationship(
+        back_populates='recipe_ingredients'
+    )
 
 class RecipeTag(Base):
     __tablename__ = 'recipe_tags'
     recipe_id: Mapped[int] = mapped_column(ForeignKey('recipes.id', ondelete='CASCADE'), primary_key=True)
     tag_id: Mapped[int] = mapped_column(ForeignKey('tags.id', ondelete='CASCADE'), primary_key=True)
+    tag: Mapped['Tag'] = relationship()
+    recipe: Mapped['Recipe'] = relationship(
+        back_populates='recipe_tags'
+    )
 
 
 

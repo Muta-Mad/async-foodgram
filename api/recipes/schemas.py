@@ -32,6 +32,16 @@ class RecipeCreate(BaseModel):
     cooking_time: int
 
 
+class RecipeUpdate(BaseModel):
+    ingredients: list['IngredientInRecipeCreate'] | None = None
+    tags: list[int] | None = None
+    image: str | None = None
+    name: str | None = None
+    text: str | None = None
+    cooking_time: int | None = None
+
+
+
 
 class TagRead(BaseModel):
     id: int
