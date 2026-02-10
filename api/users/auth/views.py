@@ -11,7 +11,7 @@ from api.users.schemas import EmailPassword
 
 router = APIRouter(prefix='/auth/token', tags=['Auth'])
 
-@router.post('/login', response_model=dict)
+@router.post('/login/', response_model=dict)
 async def login(
     request: EmailPassword,
     user_manager: UserManager = Depends(get_user_manager),
@@ -30,7 +30,7 @@ async def login(
         'auth_token': token,
     }
 
-@router.post('/logout', status_code=status.HTTP_204_NO_CONTENT)
+@router.post('/logout/', status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     user: User = Depends(get_current_user),
     token: str = Depends(token_transport),

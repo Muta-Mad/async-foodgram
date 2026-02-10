@@ -7,8 +7,10 @@ from sqlalchemy import ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from api.cart.models import ShoppingCart
 from api.core.basemodel import Base
 from api.core.idmixin import IdPkMixin
+from api.favorite.models import Favorite
 
 if TYPE_CHECKING:
     from api.recipes.models import Recipe
@@ -35,12 +37,24 @@ class User(
         'Follow', 
         foreign_keys='Follow.author_id', 
         back_populates='author',
-        cascade='all, delete-orphan'
+        cascade='all, delete-orphan',
     )
     recipes: Mapped[list['Recipe']] = relationship(
         'Recipe',
         back_populates='author',
+        cascade='all, delete-orphan',
     )
+    shopping_carts: Mapped[list['ShoppingCart']] = relationship(
+        'ShoppingCart', 
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
+    favorites: Mapped[list['Favorite']] = relationship(
+        'Favorite', 
+        back_populates='user',
+        cascade='all, delete-orphan',
+    )
+
 
     @classmethod
     def get_db(cls, session: AsyncSession):

@@ -8,9 +8,11 @@ class IngredientInRecipe(BaseModel):
     measurement_unit: str
     amount: int
 
+
 class IngredientInRecipeCreate(BaseModel):
     id: int
     amount: int
+
 
 class RecipeRead(BaseModel):
     id: int
@@ -41,9 +43,12 @@ class RecipeUpdate(BaseModel):
     cooking_time: int | None = None
 
 
-
-
 class TagRead(BaseModel):
     id: int
     name: str
     slug: str
+
+class IngredientRead(BaseModel):
+    id: int
+    name: str
+    measurement_unit: str

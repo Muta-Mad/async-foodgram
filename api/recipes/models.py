@@ -4,6 +4,9 @@ from sqlalchemy import String, Text, ForeignKey, UniqueConstraint, SmallInteger
 from api.core.basemodel import Base
 from api.core.idmixin import IdPkMixin
 from api.users.models import User
+from api.cart.models import ShoppingCart
+from api.favorite.models import Favorite
+
 
 class Recipe(IdPkMixin, Base):
     __tablename__ = 'recipes'
@@ -33,8 +36,20 @@ class Recipe(IdPkMixin, Base):
     recipe_tags: Mapped[list['RecipeTag']] = relationship(
         'RecipeTag',
         cascade='all, delete-orphan',
-        back_populates='recipe'
+        back_populates='recipe',
     )
+    shopping_carts: Mapped[list['ShoppingCart']] = relationship(
+        'ShoppingCart', 
+        back_populates='recipe',
+        cascade='all, delete-orphan'
+    )
+    favorites: Mapped[list['Favorite']] = relationship(
+        'Favorite', 
+        back_populates='recipe',
+        cascade='all, delete-orphan'
+    )
+
+
 class Tag(IdPkMixin, Base):
     __tablename__ = 'tags'
     name: Mapped[str] = mapped_column(String(32))
@@ -47,6 +62,7 @@ class Tag(IdPkMixin, Base):
         back_populates='tags'
     )
     
+
 class Ingredient(IdPkMixin, Base):
     __tablename__ = 'ingredients'
     __table_args__ = (
@@ -70,6 +86,7 @@ class RecipeIngredient(IdPkMixin, Base):
         back_populates='recipe_ingredients'
     )
 
+
 class RecipeTag(Base):
     __tablename__ = 'recipe_tags'
     recipe_id: Mapped[int] = mapped_column(ForeignKey('recipes.id', ondelete='CASCADE'), primary_key=True)
@@ -78,6 +95,3 @@ class RecipeTag(Base):
     recipe: Mapped['Recipe'] = relationship(
         back_populates='recipe_tags'
     )
-
-
-
