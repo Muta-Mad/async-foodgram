@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from api.cart.models import ShoppingCart
 from api.core.exceptions import GlobalError
 from api.recipes.models import Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag
 from api.recipes.schemas import IngredientInRecipe, IngredientRead, RecipeRead, TagRead
@@ -172,3 +173,9 @@ def get_ingredients_query():
 
 def get_ingredient_query(id):
     return select(Ingredient).where(Ingredient.id == id)
+
+def get_recipe(recipe_id):
+    return select(Recipe).where(Recipe.id == recipe_id)
+
+def get_shopping_cart_query(id, current_user):
+    return select(ShoppingCart).where(ShoppingCart.recipe_id == id, ShoppingCart.user_id == current_user.id)

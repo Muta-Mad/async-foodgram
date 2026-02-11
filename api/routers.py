@@ -5,6 +5,7 @@ from api.users.views import router as users_router
 from api.recipes.views import router as recipe_router
 from api.recipes.tags import router as tag_router
 from api.recipes.ingredients import router as ingredients_router
+from api.cart.views import router as cart_router
 
 router = APIRouter()
 router.include_router(auth_router)
@@ -12,3 +13,4 @@ router.include_router(users_router)
 router.include_router(recipe_router)
 router.include_router(tag_router)
 router.include_router(ingredients_router)
+router.include_router(cart_router)
