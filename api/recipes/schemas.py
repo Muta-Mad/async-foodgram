@@ -23,6 +23,8 @@ class RecipeRead(BaseModel):
     image: str | None = None
     text: str
     cooking_time: int
+    is_favorited: bool
+    is_in_shopping_cart: bool
 
 
 class RecipeCreate(BaseModel):

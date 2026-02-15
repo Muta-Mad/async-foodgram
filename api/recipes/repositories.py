@@ -3,7 +3,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 from api.cart.models import ShoppingCart
+from api.cart.schemas import RecipeShort
 from api.core.exceptions import GlobalError
+from api.favorite.models import Favorite
 from api.recipes.models import Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag
 from api.recipes.schemas import IngredientInRecipe, IngredientRead, RecipeRead, TagRead
 from api.users.models import User
@@ -13,6 +15,8 @@ from api.users.schemas import UserRead
 def map_recipe_to_read(
     recipe: Recipe,
     amount_map: dict[tuple[int, int], int],
+    favorites_set: set[int],
+    cart_set: set[int]
 ) -> RecipeRead:
     ingredients = [
         IngredientInRecipe(
@@ -23,6 +27,8 @@ def map_recipe_to_read(
         )
         for ingredient in recipe.ingredients
     ]
+    is_favorited = recipe.id in favorites_set
+    is_in_shopping_cart = recipe.id in cart_set
     tags = [map_tag_to_read(tag) for tag in recipe.tags]
     author = map_user_to_read(recipe.author)
     return RecipeRead(
@@ -34,6 +40,8 @@ def map_recipe_to_read(
         image=recipe.image,
         text=recipe.text,
         cooking_time=recipe.cooking_time,
+        is_favorited=is_favorited,
+        is_in_shopping_cart=is_in_shopping_cart,
     )
 
 async def get_amount_map(
@@ -70,7 +78,7 @@ def get_recipe_query(id: int):
             selectinload(Recipe.tags),
             selectinload(Recipe.ingredients)
         )
-        .order_by(Recipe.id).where(Recipe.id==id)
+        .where(Recipe.id==id)
     )
 
 def map_user_to_read(user: User) -> UserRead:
@@ -162,6 +170,15 @@ def set_recipe_tags(
         for tag_id in tags
     )
 
+def short_recipe(recipe):
+    return RecipeShort(
+        id=recipe.id,
+        name=recipe.name,
+        image=recipe.image,
+        cooking_time=recipe.cooking_time
+    )
+
+
 def get_tags_query():
     return select(Tag).order_by(Tag.id)
 
@@ -179,3 +196,39 @@ def get_recipe(recipe_id):
 
 def get_shopping_cart_query(id, current_user):
     return select(ShoppingCart).where(ShoppingCart.recipe_id == id, ShoppingCart.user_id == current_user.id)
+
+def get_favorite_query(id, current_user):
+    return select(Favorite).where(Favorite.recipe_id == id, Favorite.user_id == current_user.id)
+####### сделать красиво как в коде ниже
+def get_result_favorite(user_id: int, recipe_ids: list[int]):
+    return select(Favorite.recipe_id).where(
+        Favorite.user_id == user_id).where(
+        Favorite.recipe_id.in_(recipe_ids)
+    )
+
+def get_result_cart(user_id: int, recipe_ids: list[int]):
+    return select(ShoppingCart.recipe_id).where(
+        ShoppingCart.user_id == user_id).where(
+            ShoppingCart.recipe_id.in_(recipe_ids)
+        )
+
+
+async def get_user_recipe_flags(
+        session: AsyncSession, 
+        user_id: int,
+        recipe_ids: list[int]
+    ):
+    if not recipe_ids:
+        return set(), set()
+    favorite_stmt = select(Favorite.recipe_id).where(
+    Favorite.user_id == user_id,
+    Favorite.recipe_id.in_(recipe_ids)
+    )
+    
+    cart_stmt = select(ShoppingCart.recipe_id).where(
+    ShoppingCart.user_id == user_id,
+    ShoppingCart.recipe_id.in_(recipe_ids)
+    )
+    favorite_ids = set((await session.execute(favorite_stmt)).scalars().all())
+    cart_ids = set((await session.execute(cart_stmt)).scalars().all())
+    return favorite_ids, cart_ids

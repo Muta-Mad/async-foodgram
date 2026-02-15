@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends
 from fastapi_users.authentication.strategy import Strategy
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,7 +18,6 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 
 
 async def get_current_user(
-    request: Request,
     token: str = Depends(token_transport),
     strategy: Strategy = Depends(get_database_strategy),
     user_manager: UserManager = Depends(get_user_manager)
@@ -31,8 +30,19 @@ async def get_current_user(
         GlobalError.unauthorized()
     return user
 
+async def get_current_user_optional(
+    token: str | None = Depends(token_transport),
+    strategy: Strategy = Depends(get_database_strategy),
+    user_manager: UserManager = Depends(get_user_manager)
+)-> User | None:
+
+    if token is None:
+        return None
+    return await strategy.read_token(token, user_manager)
+
 async def get_repository(
         session: AsyncSession = Depends(get_db)
     ):
     """создает зависимость для BaseRepository"""
     return BaseRepository(session)
+

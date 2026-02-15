@@ -4,12 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.core.base_paginator import Paginator
 from api.core.exceptions import GlobalError
 from api.core.paginate_schemas import Page
-from api.dependencies import get_current_user
+from api.dependencies import get_current_user, get_current_user_optional
 from api.recipes.models import Recipe, RecipeIngredient, RecipeTag
 from api.recipes.repositories import (
     get_amount_map, get_owned_recipe, 
-    get_recipes_query, map_recipe_to_read, 
-    get_recipe_query, build_recipe_read, 
+    get_recipes_query, get_user_recipe_flags, map_recipe_to_read, get_recipe_query,
     set_recipe_ingredients, set_recipe_tags
 )
 from api.recipes.schemas import RecipeCreate, RecipeRead, RecipeUpdate
@@ -23,6 +22,7 @@ router = APIRouter(prefix='/recipes', tags=['Recipes'])
 async def get_recipes(
     paginator: Paginator = Depends(),
     session: AsyncSession = Depends(get_db),
+    current_user: User  = Depends(get_current_user_optional),
 ):
     query = get_recipes_query()
     paginated_data = await paginator.get_paginate(
@@ -32,10 +32,15 @@ async def get_recipes(
     )
     recipes = paginated_data['results']
     recipe_ids = [recipe.id for recipe in recipes]
+    favorites_set = set()
+    cart_set = set()
+    if current_user and recipe_ids:
+        favorites_set, cart_set = await get_user_recipe_flags(
+            session=session, user_id=current_user.id, recipe_ids=recipe_ids
+        )
     amount_map = await get_amount_map(session, recipe_ids)
     recipes_out = [
-        map_recipe_to_read(recipe, amount_map)
-
+        map_recipe_to_read(recipe, amount_map, favorites_set, cart_set)
         for recipe in recipes
     ]
     return Page(
@@ -49,13 +54,21 @@ async def get_recipes(
 async def get_recipe(
     id: int,
     session: AsyncSession = Depends(get_db),
+    current_user: User  = Depends(get_current_user_optional),
 ) -> RecipeRead: 
     query = get_recipe_query(id)
     result = await session.execute(query)
     recipe = result.scalar_one_or_none()
     if not recipe:
         GlobalError.not_found('Рецепт с таким id не найден')
-    return await build_recipe_read(session, recipe)
+    favorites_set = set()
+    cart_set = set()
+    if current_user:
+        favorites_set, cart_set = await get_user_recipe_flags(
+            session=session, user_id=current_user.id, recipe_ids=[recipe.id]
+        )
+    amount_map = await get_amount_map(session, [recipe.id])
+    return map_recipe_to_read(recipe, amount_map, favorites_set, cart_set)
 
 @router.delete('/{id}/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_recipe(
@@ -99,7 +112,13 @@ async def recipe_create(
         ]
     session.add_all(tags)
     await session.commit()
-    return await build_recipe_read(session, recipe) 
+    stmt = get_recipe_query(id=recipe.id)
+    result = await session.execute(stmt)
+    recipe_to_read = result.scalar_one_or_none()
+    if not recipe_to_read:
+        GlobalError.not_found('Рецепт не создан!')
+    amount_map = await get_amount_map(session, [recipe.id])
+    return map_recipe_to_read(recipe_to_read, amount_map, set(), set(),)
 
 @router.patch('/{id}/', response_model=RecipeRead)
 async def recipe_update(
@@ -122,5 +141,16 @@ async def recipe_update(
     if new_data.tags is not None:
         set_recipe_tags(recipe, new_data.tags)
     await session.commit()
-    return await build_recipe_read(session, recipe)
+    favorites_set, cart_set = await get_user_recipe_flags(
+        session=session, 
+        user_id=current_user.id, 
+        recipe_ids=[recipe.id]
+    )
+    stmt = get_recipe_query(id=recipe.id)
+    result = await session.execute(stmt)
+    recipe_to_read = result.scalar_one_or_none()
+    if not recipe_to_read:
+        GlobalError.not_found('Рецепт не создан!')
+    amount_map = await get_amount_map(session, [recipe.id])
+    return map_recipe_to_read(recipe_to_read, amount_map, favorites_set=favorites_set,cart_set=cart_set)
 
