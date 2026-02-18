@@ -10,8 +10,7 @@ router = APIRouter(prefix='/ingredients', tags=['Ingredients'])
 
 @router.get('/', response_model=list[IngredientRead])
 async def get_ingredients(session: AsyncSession = Depends(get_db)):
-    query = get_ingredients_query()
-    result = await session.execute(query)
+    result = await session.execute(get_ingredients_query())
     ingredients = result.scalars().all()
     return [map_ingredient_to_read(ingredient) for ingredient in ingredients]
 
@@ -19,8 +18,7 @@ async def get_ingredients(session: AsyncSession = Depends(get_db)):
 async def get_get_ingredient(
     id: int,
     session: AsyncSession = Depends(get_db)):
-    query = get_ingredient_query(id)
-    result = await session.execute(query)
+    result = await session.execute(get_ingredient_query(id))
     ingredient = result.scalar_one_or_none()
     if not ingredient:
         GlobalError.not_found('Ингредиент не найден')

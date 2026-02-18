@@ -1,5 +1,5 @@
 from fastapi_users import schemas
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from api.users.validators import USERNAME
 
@@ -27,6 +27,8 @@ class UserRead(UserBase):
     id: int
     is_subscribed: bool = False
     avatar: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class EmailPassword(BaseModel):

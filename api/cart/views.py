@@ -6,7 +6,7 @@ from api.cart.schemas import RecipeShort
 from api.core.database import get_db
 from api.core.exceptions import GlobalError
 from api.dependencies import get_current_user
-from api.recipes.repositories import get_recipe, get_shopping_cart_query, short_recipe
+from api.cart.repository import get_recipe, get_shopping_cart_query, short_recipe
 from api.users.models import User
 
 

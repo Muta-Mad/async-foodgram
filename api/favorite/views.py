@@ -6,7 +6,7 @@ from api.core.database import get_db
 from api.core.exceptions import GlobalError
 from api.dependencies import get_current_user
 from api.favorite.models import Favorite
-from api.recipes.repositories import get_favorite_query, get_recipe, short_recipe
+from api.favorite.repository import get_favorite_query, get_recipe, short_recipe
 from api.users.models import User
 
 

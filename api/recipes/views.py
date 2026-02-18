@@ -7,7 +7,7 @@ from api.core.paginate_schemas import Page
 from api.dependencies import get_current_user, get_current_user_optional
 from api.recipes.models import Recipe, RecipeIngredient, RecipeTag
 from api.recipes.repositories import (
-    get_amount_map, get_owned_recipe, 
+    get_amount_map, get_full_recipe, get_owned_recipe, 
     get_recipes_query, get_user_recipe_flags, map_recipe_to_read, get_recipe_query,
     set_recipe_ingredients, set_recipe_tags
 )
@@ -112,11 +112,7 @@ async def recipe_create(
         ]
     session.add_all(tags)
     await session.commit()
-    stmt = get_recipe_query(id=recipe.id)
-    result = await session.execute(stmt)
-    recipe_to_read = result.scalar_one_or_none()
-    if not recipe_to_read:
-        GlobalError.not_found('Рецепт не создан!')
+    recipe_to_read = await get_full_recipe(session=session, recipe_id=recipe.id)
     amount_map = await get_amount_map(session, [recipe.id])
     return map_recipe_to_read(recipe_to_read, amount_map, set(), set(),)
 
@@ -146,11 +142,7 @@ async def recipe_update(
         user_id=current_user.id, 
         recipe_ids=[recipe.id]
     )
-    stmt = get_recipe_query(id=recipe.id)
-    result = await session.execute(stmt)
-    recipe_to_read = result.scalar_one_or_none()
-    if not recipe_to_read:
-        GlobalError.not_found('Рецепт не создан!')
+    recipe_to_read = await get_full_recipe(session=session, recipe_id=recipe.id)
     amount_map = await get_amount_map(session, [recipe.id])
     return map_recipe_to_read(recipe_to_read, amount_map, favorites_set=favorites_set,cart_set=cart_set)
 

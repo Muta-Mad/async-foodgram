@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from api.users.schemas import UserRead
 
@@ -50,7 +50,11 @@ class TagRead(BaseModel):
     name: str
     slug: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 class IngredientRead(BaseModel):
     id: int
     name: str
     measurement_unit: str
+
+    model_config = ConfigDict(from_attributes=True)
