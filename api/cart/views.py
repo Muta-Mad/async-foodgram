@@ -13,7 +13,7 @@ from api.users.models import User
 router = APIRouter(prefix='/recipes/{id}/shopping_cart', tags=['Shopping Cart'])
 
 
-@router.post('/', response_model=RecipeShort)
+@router.post('/', response_model=RecipeShort, status_code=status.HTTP_201_CREATED)
 async def add_shopping_cart(
     id: int, 
     session: AsyncSession = Depends(get_db),

@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from api.cart.models import ShoppingCart
@@ -13,18 +13,17 @@ from api.users.schemas import UserRead
 
 def map_recipe_to_read(
     recipe: Recipe,
-    amount_map: dict[tuple[int, int], int],
     favorites_set: set[int],
     cart_set: set[int]
 ) -> RecipeRead:
     ingredients = [
         IngredientInRecipe(
-            id=ingredient.id,
-            name=ingredient.name,
-            measurement_unit=ingredient.measurement_unit,
-            amount=amount_map[(recipe.id, ingredient.id)],
+            id=ri.ingredient.id,
+            name=ri.ingredient.name,
+            measurement_unit=ri.ingredient.measurement_unit,
+            amount=ri.amount,
         )
-        for ingredient in recipe.ingredients
+        for ri in recipe.recipe_ingredients
     ]
     tags = [map_tag_to_read(tag) for tag in recipe.tags]
     author = map_user_to_read(recipe.author)
@@ -41,36 +40,36 @@ def map_recipe_to_read(
         is_in_shopping_cart=recipe.id in cart_set,
     )
 
-async def get_amount_map(
-    session: AsyncSession,
-    recipe_ids: list[int],
-) -> dict[tuple[int, int], int]:
-    if not recipe_ids:
-        return {}
-    result = await session.execute(
-        select(RecipeIngredient)
-        .where(RecipeIngredient.recipe_id.in_(recipe_ids))
-    )
-    return {
-        (ri.recipe_id, ri.ingredient_id): ri.amount
-        for ri in result.scalars()
-    }
 
 def recipe_relations():
     return (
         selectinload(Recipe.author),
         selectinload(Recipe.tags),
-        selectinload(Recipe.ingredients),
+        selectinload(Recipe.recipe_ingredients).selectinload(RecipeIngredient.ingredient),
     )
 
-def get_recipes_query():
-    return (
-        select(Recipe)
-        .options(
-            *recipe_relations()
+def get_recipes_query(
+    current_user: User | None = None,
+    is_favorited: bool | None = None,
+    is_in_shopping_cart: bool | None = None,
+    author: int | None = None,
+    tags: list[str] | None = None,
+):
+    query = select(Recipe).options(*recipe_relations())
+    if author:
+        query = query.where(Recipe.author_id == author)
+    if tags:
+        query = query.join(Recipe.tags).where(Tag.slug.in_(tags))
+
+    if is_favorited and current_user:
+        query = query.join(Favorite).where(
+            Favorite.user_id == current_user.id
         )
-        .order_by(Recipe.id)
-    )
+    if is_in_shopping_cart and current_user:
+        query = query.join(ShoppingCart).where(
+            ShoppingCart.user_id == current_user.id
+        )
+    return query.order_by(Recipe.id).distinct()
 
 def get_recipe_query(id: int):
     return (
@@ -111,30 +110,43 @@ def map_tag_to_read(tag: Tag) -> TagRead:
 def map_ingredient_to_read(ingredient: Ingredient) -> IngredientRead:
     return IngredientRead.model_validate(ingredient)
 
-
-def set_recipe_ingredients(
+async def set_recipe_ingredients(
+    session: AsyncSession,
     recipe: Recipe,
     ingredients: list,
 ):
-    recipe.recipe_ingredients.clear()
-    recipe.recipe_ingredients.extend(
+    await session.execute(
+        delete(RecipeIngredient).where(
+            RecipeIngredient.recipe_id == recipe.id
+        )
+    )
+
+    new_items = [
         RecipeIngredient(
+            recipe_id=recipe.id,
             ingredient_id=item.id,
             amount=item.amount,
         )
         for item in ingredients
-    )
+    ]
 
-def set_recipe_tags(
+    session.add_all(new_items)
+
+async def set_recipe_tags(
+    session: AsyncSession,
     recipe: Recipe,
     tags: list[int],
-):
-    recipe.recipe_tags.clear()
-    recipe.recipe_tags.extend(
-        RecipeTag(tag_id=tag_id)
-        for tag_id in tags
-    )
+    ):
+    await session.execute(delete(RecipeTag).where(RecipeTag.recipe_id == recipe.id))
 
+    new_items = [
+        RecipeTag(
+            recipe_id=recipe.id,
+            tag_id=tag_id
+        )
+        for tag_id in tags
+    ]
+    session.add_all(new_items)
 
 def get_tags_query():
     return select(Tag).order_by(Tag.id)
@@ -179,9 +191,51 @@ async def get_full_recipe(
     session: AsyncSession,
     recipe_id: int
 ) -> Recipe:
-    stmt = get_recipe_query(recipe_id)
+    stmt = (
+        select(Recipe)
+        .options(
+            selectinload(Recipe.author),
+            selectinload(Recipe.tags),
+            selectinload(Recipe.recipe_ingredients)
+                .selectinload(RecipeIngredient.ingredient),
+        )
+        .where(Recipe.id == recipe_id)
+    )
     result = await session.execute(stmt)
     recipe = result.scalar_one_or_none()
     if not recipe:
         raise GlobalError.not_found('Рецепт не найден.')
     return recipe
+
+async def validate_ingredients(
+    session: AsyncSession,
+    ingredient_data: list
+):
+    ingredien_ids = [item.id for item in ingredient_data]
+    ingredien_ids_set = set(ingredien_ids)
+
+    result = await session.execute(
+        select(Ingredient.id).where(
+            Ingredient.id.in_(ingredien_ids_set))
+        )
+    existing_ids = set(result.scalars().all())
+    if ingredien_ids_set != existing_ids:
+        GlobalError.bad_request('Нет такого ингредиента!')
+    if len(ingredien_ids) != len(ingredien_ids_set):
+        GlobalError.bad_request('Ингредиенты не должны повторяться')
+
+async def validate_tags(
+    session: AsyncSession,
+    tag_ids: list
+):
+    tag_ids_set = set(tag_ids)
+    result = await session.execute(
+        select(Tag.id).where(
+            Tag.id.in_(tag_ids_set))
+        )
+    existing_ids = set(result.scalars().all())
+    if tag_ids_set != existing_ids:
+        GlobalError.bad_request('Нет такого тега')
+    if len(tag_ids) != len(tag_ids_set):
+        GlobalError.bad_request('Теги не должны повторяться')
+

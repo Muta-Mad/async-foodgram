@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.core.base_paginator import Paginator
@@ -7,9 +7,9 @@ from api.core.paginate_schemas import Page
 from api.dependencies import get_current_user, get_current_user_optional
 from api.recipes.models import Recipe, RecipeIngredient, RecipeTag
 from api.recipes.repositories import (
-    get_amount_map, get_full_recipe, get_owned_recipe, 
+    get_full_recipe, get_owned_recipe, 
     get_recipes_query, get_user_recipe_flags, map_recipe_to_read, get_recipe_query,
-    set_recipe_ingredients, set_recipe_tags
+    set_recipe_ingredients, set_recipe_tags, validate_ingredients, validate_tags
 )
 from api.recipes.schemas import RecipeCreate, RecipeRead, RecipeUpdate
 from api.core.database import get_db
@@ -23,8 +23,18 @@ async def get_recipes(
     paginator: Paginator = Depends(),
     session: AsyncSession = Depends(get_db),
     current_user: User  = Depends(get_current_user_optional),
+    is_favorited: bool | None = Query(None),
+    is_in_shopping_cart: bool | None = Query(None),
+    author: int | None = Query(None),
+    tags: list[str] | None = Query(None),
 ):
-    query = get_recipes_query()
+    query = get_recipes_query(
+        current_user=current_user,
+        is_favorited=is_favorited,
+        is_in_shopping_cart=is_in_shopping_cart,
+        author=author,
+        tags=tags
+    )
     paginated_data = await paginator.get_paginate(
         session=session,
         model=Recipe,
@@ -38,9 +48,8 @@ async def get_recipes(
         favorites_set, cart_set = await get_user_recipe_flags(
             session=session, user_id=current_user.id, recipe_ids=recipe_ids
         )
-    amount_map = await get_amount_map(session, recipe_ids)
     recipes_out = [
-        map_recipe_to_read(recipe, amount_map, favorites_set, cart_set)
+        map_recipe_to_read(recipe, favorites_set, cart_set)
         for recipe in recipes
     ]
     return Page(
@@ -67,8 +76,7 @@ async def get_recipe(
         favorites_set, cart_set = await get_user_recipe_flags(
             session=session, user_id=current_user.id, recipe_ids=[recipe.id]
         )
-    amount_map = await get_amount_map(session, [recipe.id])
-    return map_recipe_to_read(recipe, amount_map, favorites_set, cart_set)
+    return map_recipe_to_read(recipe, favorites_set, cart_set)
 
 @router.delete('/{id}/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_recipe(
@@ -86,6 +94,8 @@ async def recipe_create(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
     ):
+    await validate_ingredients(session, data.ingredients)
+    await validate_tags(session, data.tags)
     recipe = Recipe(
         author_id=current_user.id, 
         name=data.name, 
@@ -113,8 +123,7 @@ async def recipe_create(
     session.add_all(tags)
     await session.commit()
     recipe_to_read = await get_full_recipe(session=session, recipe_id=recipe.id)
-    amount_map = await get_amount_map(session, [recipe.id])
-    return map_recipe_to_read(recipe_to_read, amount_map, set(), set(),)
+    return map_recipe_to_read(recipe_to_read, favorites_set=set(), cart_set=set(),)
 
 @router.patch('/{id}/', response_model=RecipeRead)
 async def recipe_update(
@@ -133,16 +142,27 @@ async def recipe_update(
     if new_data.cooking_time is not None:
         recipe.cooking_time = new_data.cooking_time
     if new_data.ingredients is not None:
-        set_recipe_ingredients(recipe, new_data.ingredients)
+        await set_recipe_ingredients(session, recipe, new_data.ingredients)
     if new_data.tags is not None:
-        set_recipe_tags(recipe, new_data.tags)
+        await set_recipe_tags(session, recipe, new_data.tags)
     await session.commit()
+    recipe_to_read = await get_full_recipe(session=session, recipe_id=recipe.id)
     favorites_set, cart_set = await get_user_recipe_flags(
         session=session, 
         user_id=current_user.id, 
         recipe_ids=[recipe.id]
     )
-    recipe_to_read = await get_full_recipe(session=session, recipe_id=recipe.id)
-    amount_map = await get_amount_map(session, [recipe.id])
-    return map_recipe_to_read(recipe_to_read, amount_map, favorites_set=favorites_set,cart_set=cart_set)
+    return map_recipe_to_read(recipe_to_read, favorites_set=favorites_set,cart_set=cart_set)
 
+@router.get('/{id}/get-link/')
+async def get_short_link(
+    id: int,
+    request: Request,
+    session: AsyncSession = Depends(get_db)
+):
+    recipe = await get_full_recipe(session, id)
+    short_link = str(request.url_for(
+        'redirect_short_link',
+        id=recipe.id
+    ))
+    return ({'short-link': short_link})

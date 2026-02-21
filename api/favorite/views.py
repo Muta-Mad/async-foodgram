@@ -12,7 +12,7 @@ from api.users.models import User
 
 router = APIRouter(prefix='/recipe/{id}/favorite', tags=['Favorite'])
 
-@router.post('/', response_model=RecipeShort)
+@router.post('/', response_model=RecipeShort, status_code=status.HTTP_201_CREATED)
 async def add_favorite(
     id: int,
     current_user: User = Depends(get_current_user),

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict
 
 from api.users.schemas import UserRead
 
@@ -11,7 +11,7 @@ class IngredientInRecipe(BaseModel):
 
 class IngredientInRecipeCreate(BaseModel):
     id: int
-    amount: int
+    amount: int = Field(gt=0, description='Колличесво должно быть не меньше 1')
 
 
 class RecipeRead(BaseModel):
@@ -28,12 +28,12 @@ class RecipeRead(BaseModel):
 
 
 class RecipeCreate(BaseModel):
-    ingredients: list['IngredientInRecipeCreate']
-    tags: list[int]
-    image: str | None = None
-    name: str
-    text: str
-    cooking_time: int
+    ingredients: list['IngredientInRecipeCreate'] = Field(min_length=1)
+    tags: list[int] = Field(min_length=1)
+    image: str = Field(min_length=1)
+    name: str = Field(min_length=1, max_length=256)
+    text: str = Field(min_length=1)
+    cooking_time: int = Field(gt=0, description='Время готовки не должно быть не меньше 1')
 
 
 class RecipeUpdate(BaseModel):
@@ -51,6 +51,7 @@ class TagRead(BaseModel):
     slug: str
 
     model_config = ConfigDict(from_attributes=True)
+
 
 class IngredientRead(BaseModel):
     id: int
