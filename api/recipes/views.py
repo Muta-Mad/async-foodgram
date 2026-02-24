@@ -132,6 +132,8 @@ async def recipe_update(
     session: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    await validate_ingredients(session, new_data.ingredients)
+    await validate_tags(session, new_data.tags)
     recipe = await get_owned_recipe(session, id, current_user.id)
     if new_data.name is not None:
         recipe.name = new_data.name

@@ -85,20 +85,12 @@ async def get_owned_recipe(
     recipe_id: int,
     user_id: int,
 ) -> Recipe:
-    query = (
-    select(Recipe)
-    .options(
-        *recipe_relations()
-    )
-    .where(
-        Recipe.id == recipe_id,
-        Recipe.author_id == user_id
-    )
-    )
-    result = await session.execute(query)
+    result = await session.execute(select(Recipe).options(*recipe_relations()).where(Recipe.id == recipe_id))
     recipe = result.scalar_one_or_none()
     if not recipe:
         GlobalError.not_found('Страница не найдена.')
+    if recipe.author_id != user_id:
+        GlobalError.forbidden('У вас недостаточно прав.')
     return recipe
 
 def map_user_to_read(user: User) -> UserRead:

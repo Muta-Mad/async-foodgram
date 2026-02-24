@@ -37,12 +37,13 @@ class RecipeCreate(BaseModel):
 
 
 class RecipeUpdate(BaseModel):
-    ingredients: list['IngredientInRecipeCreate'] | None = None
-    tags: list[int] | None = None
-    image: str | None = None
-    name: str | None = None
-    text: str | None = None
-    cooking_time: int | None = None
+    ingredients: list['IngredientInRecipeCreate'] = Field(min_length=1)
+    tags: list[int] = Field(min_length=1)
+    image: str | None = Field(default=None, min_length=1)
+    name: str | None = Field(default=None, min_length=1, max_length=256)
+    text: str | None = Field(default=None, min_length=1)
+    cooking_time: int | None = Field(default=None, gt=0, description='Время готовки не должно быть не меньше 1')
+
 
 
 class TagRead(BaseModel):

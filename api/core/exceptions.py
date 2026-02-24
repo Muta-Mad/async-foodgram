@@ -68,3 +68,11 @@ class GlobalError:
             status_code=status.HTTP_404_NOT_FOUND,
             detail=detail,
         )
+    
+    @staticmethod
+    def forbidden(detail: str):
+        """Возвращает 403"""
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail=detail
+        )
