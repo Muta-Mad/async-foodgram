@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from fastapi_users.exceptions import UserAlreadyExists
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from api.core.paginate_schemas import Page
 from api.dependencies import get_current_user, get_repository, get_user_manager
 from api.users.manager import UserManager
 from api.users.models import User, Follow
+from api.users.repository import get_subscribe_schema
 from api.users.schemas import (Avatar, SetPassword, UserCreate, UserRead,
                                UserResponse, SubscribeSchemas)
 
@@ -22,7 +23,8 @@ router = APIRouter(prefix='/users', tags=['Users'])
 async def subscribe(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
-    paginator: Paginator = Depends(Paginator)
+    paginator: Paginator = Depends(Paginator),
+    recipes_limit: int | None = Query(None)
 ):
     query = (
         select(User)
@@ -34,9 +36,10 @@ async def subscribe(
         model=User, 
         base_query=query
     )
-    for author in paginated_response['results']:
-        author.is_subscribed = True
-        author.recipes_count = 0 
+    paginated_response['results'] = [
+        await get_subscribe_schema(author, session, recipes_limit)
+        for author in paginated_response['results']
+    ]
     return paginated_response
 
 
@@ -125,6 +128,7 @@ async def add_subscribe(
     id: int,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
+    recipes_limit: int | None = Query(None)
 ):
     if id == current_user.id:
         GlobalError.bad_request('Нельзя подписываться на самого себя!')
@@ -143,7 +147,7 @@ async def add_subscribe(
     create_follow = Follow(follower_id=current_user.id, author_id=id)
     session.add(create_follow)
     await session.commit()
-    return author
+    return await get_subscribe_schema(author, session, recipes_limit)
 
 @router.delete('/{id}/subscribe/', status_code=status.HTTP_204_NO_CONTENT)
 async def remove_subscribe(

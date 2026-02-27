@@ -45,5 +45,14 @@ class SetPassword(BaseModel):
     new_password: str = Field(min_length=8)
     current_password: str
 
+
+class RecipeSubscribers(BaseModel):
+    id: int
+    name: str
+    image: str | None = None
+    cooking_time: int
+
+
 class SubscribeSchemas(UserRead):
-    recipes_count: int = 0
+    recipes_count: int
+    recipes: list['RecipeSubscribers']
