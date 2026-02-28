@@ -155,6 +155,9 @@ async def remove_subscribe(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    query = await session.execute(select(User).where(User.id == id))
+    if not query.scalar_one_or_none():
+        GlobalError.not_found('Пользователь не найден')
     result = await session.execute(select(Follow).where(
         Follow.follower_id == current_user.id,
         Follow.author_id == id
@@ -165,4 +168,3 @@ async def remove_subscribe(
         GlobalError.bad_request('Подписка не найдена')
     await session.delete(follow)
     await session.commit()
-    return None

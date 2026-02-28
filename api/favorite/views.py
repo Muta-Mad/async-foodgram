@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.cart.schemas import RecipeShort
@@ -10,7 +11,7 @@ from api.favorite.repository import get_favorite_query, get_recipe, short_recipe
 from api.users.models import User
 
 
-router = APIRouter(prefix='/recipe/{id}/favorite', tags=['Favorite'])
+router = APIRouter(prefix='/recipes/{id}/favorite', tags=['Favorite'])
 
 @router.post('/', response_model=RecipeShort, status_code=status.HTTP_201_CREATED)
 async def add_favorite(
@@ -25,7 +26,7 @@ async def add_favorite(
     query = await session.execute(get_favorite_query(id, current_user))
     dublicate = query.scalar_one_or_none()
     if dublicate:
-        GlobalError.not_found('Рецепт уже в избранном')
+        GlobalError.bad_request('Рецепт уже в избранном')
     favorite = Favorite(user_id=current_user.id, recipe_id=recipe.id)
     session.add(favorite)
     await session.commit()
@@ -37,11 +38,12 @@ async def delete_shopping_cart(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
-    
-    query = await session.execute(get_favorite_query(id, current_user))
-    favorite = query.scalar_one_or_none()
+    query = await session.execute(select(User).where(User.id == id))
+    if not query.scalar_one_or_none():
+        GlobalError.not_found('Пользователь не найден')
+    result = await session.execute(get_favorite_query(id, current_user))
+    favorite = result.scalar_one_or_none()
     if not favorite:
-        GlobalError.not_found('Рецепт не в избранном')
-    
+        GlobalError.bad_request('Рецепт не в избранном')
     await session.delete(favorite)
     await session.commit()
