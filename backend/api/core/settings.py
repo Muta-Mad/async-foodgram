@@ -7,12 +7,10 @@ BASE_DIR = Path(__file__).parent.parent.parent.parent
 
 BACKEND_DIR = Path(__file__).parent.parent.parent
 
-DB_PATH = BACKEND_DIR / 'db.sqlite3'
-
 
 class Db_Config(BaseModel):
     """Настройки базы данных"""
-    url: str = f'sqlite+aiosqlite:///{DB_PATH}'
+    url: str
 
 
 class Paginate_Config(BaseModel):
@@ -42,15 +40,16 @@ class Settings(BaseSettings):
     """Базовые настройки"""
     app: App_Config = App_Config()
     cors: CORS_Config = CORS_Config()
-    db: Db_Config = Db_Config()
+    db: Db_Config
     access_token: Access_Token
     pagination: Paginate_Config = Paginate_Config()
 
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=BACKEND_DIR / '.env',
         env_file_encoding='utf-8',
         case_sensitive=False,
         env_nested_delimiter='__',
+        extra='ignore',
     )
 
 settings = Settings()# type: ignore
