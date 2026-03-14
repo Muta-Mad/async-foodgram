@@ -55,7 +55,7 @@ docker compose up
 🌐 Веб-интерфейс будет доступен по адрессу: http://localhost:8000
 
 ### Контакты и поддержка
-**[Автор](https://github.com/Muta-Mad)**
+**[Автор](https://github.com/Muta-Mad)** Тагаев М.
 
 **[Сообщить об ошибке](https://github.com/Muta-Mad/FastCook/issues)**
 
